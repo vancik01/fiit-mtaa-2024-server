@@ -12,7 +12,7 @@
 1. Pull the repository using `git pull <repository_url>`
 2. Enter the projects directory `cd fiit-mtaa-2024-server`
 3. Run `npm install`
-4. Copy file `.env.dev` and rename it to `.env`
+4. Make a copy of `.env.dev` file and rename it to `.env`
 5. Run `docker compose up` (this will run a postgres DB in docker)
 6. Make sure the DB is running using command `docker ps` (you should see container running with a name 'mtaa-2024-server-db-1')
 7. Run `npx prisma migrate reset` (this will reset the DB, create all the tables, generate dummy data using _./prisma/seed.ts_)
