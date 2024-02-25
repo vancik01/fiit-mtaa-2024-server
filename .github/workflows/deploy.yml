@@ -20,12 +20,12 @@ jobs:
 
       - name: Create .env file
         run: |
+          rm .env
+          touch .env
           echo JWT_SECRET="${{ secrets.JWT_SECRET }}" >> .env
           echo DB_PASSWORD="${{ secrets.DB_PASSWORD }}" >> .env
 
       - name: Deploy to Droplet
-        env:
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
             cd /home/my-app/fiit-mtaa-2024-server/
