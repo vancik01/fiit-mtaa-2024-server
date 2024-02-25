@@ -20,7 +20,6 @@ jobs:
 
       - name: Create .env file
         run: |
-          rm .env
           touch .env
           echo JWT_SECRET="${{ secrets.JWT_SECRET }}" >> .env
           echo DB_PASSWORD="${{ secrets.DB_PASSWORD }}" >> .env
