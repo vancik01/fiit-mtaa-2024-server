@@ -18,12 +18,13 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      - name: Create .env file with static content
+      - name: Create .env file
         run: |
+          cd /home/my-app/fiit-mtaa-2024-server/
           echo "Creating .env file..."
           touch .env
-          echo 'JWT_SECRET="static_value"' >> .env
-          echo 'DB_PASSWORD="static_value"' >> .env
+          echo 'JWT_SECRET="${{ secrets.JWT_SECRET }}"' >> .env
+          echo 'DB_PASSWORD="${{ secrets.DB_PASSWORD }}"' >> .env
           cat .env
 
       - name: Deploy to Droplet
@@ -31,7 +32,6 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
             echo $(pwd)
             echo $(ls)
-            cd /home/my-app/fiit-mtaa-2024-server/
             echo $(pwd)
             echo $(ls)
             
