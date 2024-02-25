@@ -15,6 +15,6 @@
 4. Make a copy of `.env.dev` file and rename it to `.env`
 5. Run `docker compose up db` (this will run a postgres DB in docker)
 6. Make sure the DB is running using command `docker ps` (you should see container running with a name 'mtaa-2024-server-db-1')
-7. Run `npx prisma migrate reset` (this will reset the DB, create all the tables, generate dummy data using _./prisma/seed.ts_)
+7. Run `npx prisma migrate reset` (this will reset the DB, create all the tables, generate dummy data)
 8. Run `npx prisma generate` (generates typescript types for DB model)
 9. If you want to see the data in a DB, run `npx prisma studio`. This will open a window in browser where you can see all the tables and data inside the db.
