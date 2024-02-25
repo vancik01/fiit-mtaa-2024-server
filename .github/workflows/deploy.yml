@@ -40,6 +40,6 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
             cd /home/my-app/fiit-mtaa-2024-server/
             docker compose down
-            docker volume rm mtaa-2024-server_postgres_data
+            docker volume rm fiit-mtaa-2024-server_postgres_data
             docker-compose up --force-recreate
           EOF
