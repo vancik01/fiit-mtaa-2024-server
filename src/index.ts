@@ -38,7 +38,6 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
 const runServer = () => {
 	const PORT = process.env.PORT as string | 3000;
 	const app = express();
-	console.log("port", process.env.PORT);
 
 	app.use(json());
 	app.use("/user", verifyToken);
@@ -110,6 +109,7 @@ const runServer = () => {
 
 	app.listen(PORT, () => {
 		console.log(`App listening on port ${PORT}`);
+		console.log("port", process.env.PORT);
 	});
 };
 
