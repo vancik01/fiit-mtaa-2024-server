@@ -28,6 +28,7 @@ jobs:
       - name: Create .env file on Droplet
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+          cd /home/my-app/fiit-mtaa-2024-server/
             echo "Creating .env file..."
             echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
