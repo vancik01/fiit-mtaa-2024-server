@@ -18,6 +18,11 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
+      - name: Create .env file
+        run: |
+          echo JWT_SECRET="${{ secrets.JWT_SECRET }}" >> .env
+          echo DB_PASSWORD="${{ secrets.DB_PASSWORD }}" >> .env
+
       - name: Deploy to Droplet
         env:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
@@ -25,7 +30,6 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
             cd /home/my-app/fiit-mtaa-2024-server/
             git pull
-            export DB_PASSWORD=${DB_PASSWORD}
             docker compose down
             docker compose up --build -d
           EOF
