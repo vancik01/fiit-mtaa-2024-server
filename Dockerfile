@@ -5,7 +5,8 @@ COPY tsconfig.json ./
 RUN npm install
 COPY . .  
 
-RUN npm run build
 RUN npx prisma generate
+RUN npm run build
+
 
 CMD [ "npm", "start" ]
