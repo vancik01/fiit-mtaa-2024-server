@@ -31,7 +31,7 @@ jobs:
           cd /home/my-app/fiit-mtaa-2024-server/
             echo "Creating .env file..."
             echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
-            echo "PORT=${{ secrets.PORT }}" >> .env
+            echo "PORT=3000" >> .env
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
             
           EOF
