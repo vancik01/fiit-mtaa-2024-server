@@ -32,6 +32,7 @@ jobs:
             echo "Creating .env file..."
             echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+            echo "PORT=3000" >> .env
           EOF
 
       - name: Deploy with Docker Compose
@@ -39,5 +40,6 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
             cd /home/my-app/fiit-mtaa-2024-server/
             docker compose down
-            docker compose up --build -d
+            docker volume rm mtaa-2024-server_postgres_data
+            docker-compose up --force-recreate
           EOF
