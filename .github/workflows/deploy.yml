@@ -30,9 +30,10 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
           cd /home/my-app/fiit-mtaa-2024-server/
             echo "Creating .env file..."
+            echo "PORT=3000" >> .env
             echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-            echo "PORT=3000" >> .env
+            
           EOF
 
       - name: Deploy with Docker Compose
