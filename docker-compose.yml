@@ -1,30 +1,31 @@
-version: '3.8'
+name: Deploy to Droplet
 
-services:
-  db:
-    image: postgres:13
-    environment:
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-          - my_network
-    ports:
-      - "5432:5432"
-  app:
-    build: .
-    ports:
-      - "3000:3000"  # Map the port from the container to the host (adjust if your app uses a different port)
-    depends_on:
-      - db
-    environment:
-      - DATABASE_URL=postgresql://postgres:${DB_PASSWORD}@db:5432/postgres?connect_timeout=300
-    networks:
-          - my_network
+on:
+  push:
+    branches:
+      - main # Or your deployment branch
 
-volumes:
-  postgres_data:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-networks:
-    my_network:
-      driver: bridge
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Deploy to Droplet
+        env:
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+            cd /home/my-app/fiit-mtaa-2024-server/
+            git pull
+            export DB_PASSWORD=${DB_PASSWORD}
+            docker compose down
+            docker compose up --build -d
+          EOF
