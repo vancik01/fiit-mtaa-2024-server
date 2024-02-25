@@ -2,6 +2,7 @@ FROM node:16
 WORKDIR /
 COPY package*.json ./  
 COPY tsconfig.json ./  
+COPY .env ./  
 RUN npm install
 COPY . .  
 
