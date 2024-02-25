@@ -1,10 +1,28 @@
-version: '3.1'
+version: '3.8'
 
 services:
   db:
-    image: postgres
-    restart: always
+    image: postgres:13
     environment:
       POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+          - my_network
+  app:
+    build: .
     ports:
-      - "5432:5432"
+      - "3000:3000"  # Map the port from the container to the host (adjust if your app uses a different port)
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@db:5432/postgres?connect_timeout=300
+    networks:
+          - my_network
+
+volumes:
+  postgres_data:
+
+networks:
+    my_network:
+      driver: bridge

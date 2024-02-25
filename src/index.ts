@@ -42,8 +42,9 @@ const runServer = () => {
 	app.use(json());
 	app.use("/user", verifyToken);
 
-	app.get("/hello", (req, res) => {
-		res.json({ response: "Hello World!" });
+	app.get("/hello", async (req, res) => {
+		const v = await prisma.$queryRawUnsafe("select version();");
+		res.json({ response: v });
 	});
 
 	app.get("/login", async (req, res) => {
