@@ -1,0 +1,28 @@
+name: Deploy to Droplet
+
+on:
+  push:
+    branches:
+      - main # Or your deployment branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Deploy to Droplet
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+            cd /home/my-app/fiit-mtaa-2024-server/
+            git pull
+            docker-compose down
+            docker-compose up --build -d
+          EOF

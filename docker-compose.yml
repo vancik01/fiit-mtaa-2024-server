@@ -4,7 +4,7 @@ services:
   db:
     image: postgres:13
     environment:
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -18,7 +18,7 @@ services:
     depends_on:
       - db
     environment:
-      - DATABASE_URL=postgresql://postgres:password@db:5432/postgres?connect_timeout=300
+      - DATABASE_URL=postgresql://postgres:${DB_PASSWORD}@db:5432/postgres?connect_timeout=300
     networks:
           - my_network
 
