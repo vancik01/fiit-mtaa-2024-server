@@ -1,0 +1,133 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table User {
+  id String [pk]
+  email String [unique, not null]
+  createdAt DateTime [default: `now()`, not null]
+  password String [not null]
+  name String [not null]
+  verificationToken String
+  phoneNumber String [unique]
+  type AccountType [not null]
+  avatarURL String
+  EventAssignment EventAssignment [not null]
+  AnnouncementItem AnnouncementItem [not null]
+  Event Event [not null]
+}
+
+Table Event {
+  id String [pk]
+  name String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  User User [not null]
+  happeningAt DateTime [not null]
+  description String
+  thumbnailURL String
+  locationLat Float [not null]
+  locationLon Float [not null]
+  capacity Int [not null]
+  sallaryType SallaryType [not null]
+  sallary String [not null]
+  toolingRequired String
+  toolingProvided String
+  status EventStatus [not null, default: 'CREATED']
+  EventAssignment EventAssignment [not null]
+  AnnouncementItem AnnouncementItem [not null]
+  HarmonogramItem HarmonogramItem [not null]
+  userId String [not null]
+  EventCategoryRelation EventCategoryRelation [not null]
+}
+
+Table EventAssignment {
+  id String [pk]
+  createdAt DateTime [default: `now()`, not null]
+  user User [not null]
+  userId String [not null]
+  event Event [not null]
+  eventId String [not null]
+  assignmentStatus EventAssignmentStatus [not null, default: 'Active']
+  arrivedAt DateTime
+  leftAt DateTime
+}
+
+Table EventCategory {
+  id String [pk]
+  createdAt DateTime [default: `now()`, not null]
+  name String [not null]
+  icon String [not null]
+  EventCategoryRelation EventCategoryRelation [not null]
+}
+
+Table EventCategoryRelation {
+  id String [pk]
+  Event Event [not null]
+  eventId String [not null]
+  EventCategory EventCategory [not null]
+  eventCategoryId String [not null]
+}
+
+Table AnnouncementItem {
+  id String [pk]
+  createdAt DateTime [default: `now()`, not null]
+  event Event [not null]
+  eventId String [not null]
+  user User [not null]
+  userId String [not null]
+  message String [not null]
+}
+
+Table HarmonogramItem {
+  id String [pk]
+  createdAt DateTime [default: `now()`, not null]
+  from DateTime [not null]
+  to DateTime [not null]
+  title String [not null]
+  description String
+  event Event [not null]
+  eventId String [not null]
+}
+
+Enum AccountType {
+  WORKER
+  COMPANY
+}
+
+Enum SallaryType {
+  MONEY
+  GOODS
+}
+
+Enum EventStatus {
+  CREATED
+  PROGRESS
+  ARCHIVED
+}
+
+Enum EventPresenceStatus {
+  NOT_PRESENT
+  PRESENT
+  LEFT
+}
+
+Enum EventAssignmentStatus {
+  Active
+  SignedOff
+}
+
+Ref: Event.userId > User.id
+
+Ref: EventAssignment.userId > User.id
+
+Ref: EventAssignment.eventId > Event.id
+
+Ref: EventCategoryRelation.eventId > Event.id
+
+Ref: EventCategoryRelation.eventCategoryId > EventCategory.id
+
+Ref: AnnouncementItem.eventId > Event.id
+
+Ref: AnnouncementItem.userId > User.id
+
+Ref: HarmonogramItem.eventId > Event.id

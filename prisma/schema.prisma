@@ -13,8 +13,121 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
+enum AccountType {
+  WORKER
+  COMPANY
+}
+
+enum SallaryType {
+  MONEY
+  GOODS
+}
+
+enum EventStatus {
+  CREATED
+  PROGRESS
+  ARCHIVED
+}
+
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+  id                String             @id @default(cuid())
+  email             String             @unique
+  createdAt         DateTime           @default(now())
+  password          String
+  name              String
+  verificationToken String?
+  phoneNumber       String?            @unique
+  type              AccountType
+  avatarURL         String?
+  EventAssignment   EventAssignment[]
+  AnnouncementItem  AnnouncementItem[]
+  Event             Event[]
+}
+
+enum EventPresenceStatus {
+  NOT_PRESENT
+  PRESENT
+  LEFT
+}
+
+enum EventAssignmentStatus {
+  Active
+  SignedOff
+}
+
+model Event {
+  id                    String                  @id @default(cuid())
+  name                  String
+  createdAt             DateTime                @default(now())
+  User                  User                    @relation(fields: [userId], references: [id])
+  happeningAt           DateTime
+  description           String?
+  thumbnailURL          String?
+  locationLat           Float
+  locationLon           Float
+  capacity              Int
+  sallaryType           SallaryType
+  sallary               String
+  toolingRequired       String?
+  toolingProvided       String?
+  status                EventStatus             @default(CREATED)
+  EventAssignment       EventAssignment[]
+  AnnouncementItem      AnnouncementItem[]
+  HarmonogramItem       HarmonogramItem[]
+  userId                String
+  EventCategoryRelation EventCategoryRelation[]
+}
+
+model EventAssignment {
+  id               String                @id @default(cuid())
+  createdAt        DateTime              @default(now())
+  user             User                  @relation(fields: [userId], references: [id])
+  userId           String
+  event            Event                 @relation(fields: [eventId], references: [id])
+  eventId          String
+  assignmentStatus EventAssignmentStatus @default(Active)
+  arrivedAt        DateTime?
+  leftAt           DateTime?
+}
+
+model EventCategory {
+  id                    String                  @id @default(cuid())
+  createdAt             DateTime                @default(now())
+  name                  String
+  icon                  String
+  EventCategoryRelation EventCategoryRelation[]
+}
+
+model EventCategoryRelation {
+  id              String        @id @default(cuid())
+  Event           Event         @relation(fields: [eventId], references: [id])
+  eventId         String
+  EventCategory   EventCategory @relation(fields: [eventCategoryId], references: [id])
+  eventCategoryId String
+}
+
+model AnnouncementItem {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  event     Event    @relation(fields: [eventId], references: [id])
+  eventId   String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  message   String
+}
+
+model HarmonogramItem {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  from        DateTime
+  to          DateTime
+  title       String
+  description String?
+
+  event   Event  @relation(fields: [eventId], references: [id])
+  eventId String
 }
