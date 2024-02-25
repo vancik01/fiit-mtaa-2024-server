@@ -41,5 +41,5 @@ jobs:
             cd /home/my-app/fiit-mtaa-2024-server/
             docker compose down
             docker volume rm fiit-mtaa-2024-server_postgres_data
-            docker-compose up --force-recreate
+            docker compose up --force-recreate
           EOF
