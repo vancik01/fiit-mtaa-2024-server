@@ -27,8 +27,12 @@ jobs:
       - name: Deploy to Droplet
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+            echo $(pwd)
+            echo $(ls)
             cd /home/my-app/fiit-mtaa-2024-server/
             echo $(pwd)
+            echo $(ls)
+            
             git pull
             docker compose down
             docker compose up --build -d
