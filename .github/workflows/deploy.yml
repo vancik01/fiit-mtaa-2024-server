@@ -18,24 +18,25 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      - name: Create .env file
-        run: |
-          cd /home/my-app/fiit-mtaa-2024-server/
-          echo "Creating .env file..."
-          touch .env
-          echo 'JWT_SECRET="${{ secrets.JWT_SECRET }}"' >> .env
-          echo 'DB_PASSWORD="${{ secrets.DB_PASSWORD }}"' >> .env
-          cat .env
-
-      - name: Deploy to Droplet
+      - name: Prepare Deployment Environment
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
-            echo $(pwd)
-            echo $(ls)
-            echo $(pwd)
-            echo $(ls)
-            
+            cd /home/my-app/fiit-mtaa-2024-server/
             git pull
+          EOF
+
+      - name: Create .env file on Droplet
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+            echo "Creating .env file..."
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          EOF
+
+      - name: Deploy with Docker Compose
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+            cd /home/my-app/fiit-mtaa-2024-server/
             docker compose down
             docker compose up --build -d
           EOF
