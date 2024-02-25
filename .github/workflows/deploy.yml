@@ -18,11 +18,13 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      - name: Create .env file
+      - name: Create .env file with static content
         run: |
+          echo "Creating .env file..."
           touch .env
-          echo 'JWT_SECRET="${{ secrets.JWT_SECRET }}"' >> .env
-          echo 'DB_PASSWORD="${{ secrets.DB_PASSWORD }}"' >> .env
+          echo 'JWT_SECRET="static_value"' >> .env
+          echo 'DB_PASSWORD="static_value"' >> .env
+          cat .env
 
       - name: Deploy to Droplet
         run: |
