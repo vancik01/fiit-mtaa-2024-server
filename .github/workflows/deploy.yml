@@ -32,6 +32,7 @@ jobs:
             echo "Creating .env file..."
             echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
             echo "PORT=3000" >> .env
+            echo "DATABASE_PORT=5432" >> .env
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
             
           EOF

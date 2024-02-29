@@ -10,7 +10,7 @@ services:
     networks:
           - my_network
     ports:
-      - "5432:5432"
+      - "${DATABASE_PORT}:5432"
   app:
     build: .
     ports:
