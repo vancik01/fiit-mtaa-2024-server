@@ -108,7 +108,7 @@ const runServer = () => {
 	});
 
 	app.listen(PORT, () => {
-		console.log(`App listening on port ${PORT}`);
+		console.log(`App listening on  http://localhost:${PORT}`);
 		console.log("port", process.env.PORT);
 	});
 };
