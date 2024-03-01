@@ -5,6 +5,11 @@ import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import md5 from "md5";
 import jwt from "jsonwebtoken";
+import {
+	Coordinates,
+	calculateDistance,
+	distanceQuery,
+} from "../helpers/distance";
 
 const passportJWTStrategy = new JwtStrategy(
 	{
@@ -112,5 +117,9 @@ const runServer = () => {
 		console.log("port", process.env.PORT);
 	});
 };
+
+// const pointA: Coordinates = { lat: 49.0022976, lon: 18.1394956 };
+// const results = await distanceQuery(pointA, 2000);
+// console.log(results);
 
 runServer();

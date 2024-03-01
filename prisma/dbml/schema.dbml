@@ -47,7 +47,7 @@ Table EventAssignment {
   userId String [not null]
   event Event [not null]
   eventId String [not null]
-  assignmentStatus EventAssignmentStatus [not null, default: 'Active']
+  assignmentStatus EventAssignmentStatus [not null, default: 'ACTIVE']
   arrivedAt DateTime
   leftAt DateTime
 }
@@ -112,8 +112,8 @@ Enum EventPresenceStatus {
 }
 
 Enum EventAssignmentStatus {
-  Active
-  SignedOff
+  ACTIVE
+  SIGNED_OFF
 }
 
 Ref: Event.userId > User.id
