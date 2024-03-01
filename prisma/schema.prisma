@@ -56,8 +56,8 @@ enum EventPresenceStatus {
 }
 
 enum EventAssignmentStatus {
-  Active
-  SignedOff
+  ACTIVE
+  SIGNED_OFF
 }
 
 model Event {
@@ -90,7 +90,7 @@ model EventAssignment {
   userId           String
   event            Event                 @relation(fields: [eventId], references: [id])
   eventId          String
-  assignmentStatus EventAssignmentStatus @default(Active)
+  assignmentStatus EventAssignmentStatus @default(ACTIVE)
   arrivedAt        DateTime?
   leftAt           DateTime?
 }
