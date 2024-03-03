@@ -52,8 +52,6 @@ const getRandomEventData = () => {
         capacity: faker.number.int({ min: 5, max: 10 }),
         description: faker.commerce.productDescription(),
         happeningAt: faker.date.future(),
-        locationLat: faker.location.latitude(),
-        locationLon: faker.location.longitude(),
         name: faker.commerce.productName(),
         sallaryType: sallaryType,
         sallary:
@@ -148,12 +146,26 @@ async function main() {
     });
     const adminUsers = await prisma.user.findMany({ select: { id: true } });
 
+    await prisma.location.createMany({
+        data: Array(15)
+            .fill("")
+            .map((_, i) => ({
+                address: faker.location.streetAddress(),
+                city: faker.location.city(),
+                locationLat: faker.location.latitude(),
+                locationLon: faker.location.longitude()
+            }))
+    });
+
+    const locations = await prisma.location.findMany({ select: { id: true } });
+
     await prisma.event.createMany({
         data: Array(15)
             .fill("")
             .map((_, i) => ({
                 ...getRandomEventData(),
-                userId: adminUsers[i % 3].id
+                userId: adminUsers[i % 3].id,
+                locationId: locations[i].id
             }))
     });
 
@@ -233,6 +245,7 @@ async function main() {
     const liveEvent = await prisma.event.create({
         data: {
             userId: adminUsers[0].id,
+            locationId: locations[0].id,
             ...{ ...getRandomEventData(), status: "PROGRESS" }
         },
         select: {

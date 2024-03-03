@@ -10,10 +10,20 @@ Table User {
   name String [not null]
   verificationToken String
   phoneNumber String [unique]
-  type AccountType [not null]
+  type AccountType
   avatarURL String
   EventAssignment EventAssignment [not null]
   AnnouncementItem AnnouncementItem [not null]
+  Event Event [not null]
+}
+
+Table Location {
+  id String [pk]
+  locationLat Float [not null]
+  locationLon Float [not null]
+  address String [not null]
+  city String [not null]
+  name String
   Event Event [not null]
 }
 
@@ -25,8 +35,8 @@ Table Event {
   happeningAt DateTime [not null]
   description String
   thumbnailURL String
-  locationLat Float [not null]
-  locationLon Float [not null]
+  setupComplete Boolean [not null, default: false]
+  Location Location [not null]
   capacity Int [not null]
   sallaryType SallaryType [not null]
   sallary String [not null]
@@ -38,6 +48,7 @@ Table Event {
   HarmonogramItem HarmonogramItem [not null]
   userId String [not null]
   EventCategoryRelation EventCategoryRelation [not null]
+  locationId String [not null]
 }
 
 Table EventAssignment {
@@ -50,6 +61,7 @@ Table EventAssignment {
   assignmentStatus EventAssignmentStatus [not null, default: 'ACTIVE']
   arrivedAt DateTime
   leftAt DateTime
+  presenceStatus EventPresenceStatus [not null, default: 'NOT_PRESENT']
 }
 
 Table EventCategory {
@@ -117,6 +129,8 @@ Enum EventAssignmentStatus {
 }
 
 Ref: Event.userId > User.id
+
+Ref: Event.locationId > Location.id
 
 Ref: EventAssignment.userId > User.id
 
