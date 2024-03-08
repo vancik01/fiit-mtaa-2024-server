@@ -8,41 +8,44 @@ import { ThrowForbidden } from "../errorResponses/forbidden403";
 
 const prisma = new PrismaClient();
 
-export const login = async (req: Request, res: Response) => {
-    const { email, password } = req.body;
+export const createAccount = async (req: Request, res: Response) => {
+    const { email, password, name } = req.body;
 
-    if (!email || !password) {
+    if (!email || !password || !name) {
         ThrowBadRequest(res);
         return;
     }
 
-    const user = await prisma.user.findFirst({
+    const userExists = await prisma.user.findFirst({
         where: {
             email: email
-        },
-        select: {
-            id: true,
-            email: true,
-            password: true,
-            type: true
         }
     });
 
-    if (user === null) {
-        ThrowNotFound(res);
+    if (userExists !== null) {
+        res.status(409).json({
+            message: "Email already in use",
+            code: "EMAIL_IN_USE"
+        });
         return;
     }
 
-    const HASHpassword = md5(password);
-    if (user.password !== HASHpassword) {
-        ThrowForbidden(res);
-        return;
-    }
+    const user = await prisma.user.create({
+        data: {
+            email,
+            name,
+            password: md5(password),
+            type: "WORKER"
+        },
+        select: {
+            id: true
+        }
+    });
 
     const accessToken = jwt.sign(
         {
-            id: user.id,
-            role: user.type
+            userID: user.id,
+            role: "WORKER"
         },
         process.env.JWT_SECRET as string,
         {

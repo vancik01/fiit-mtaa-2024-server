@@ -2,14 +2,23 @@ import express, { NextFunction, Request, Response, json } from "express";
 import passport from "passport";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import "dotenv/config";
-import { PrismaClient } from "@prisma/client";
+import { AccountType, PrismaClient } from "@prisma/client";
 import md5 from "md5";
 import jwt from "jsonwebtoken";
 import { login } from "./endpoints/login";
+import { createAccount } from "./endpoints/createAccount";
+import { editAccount } from "./endpoints/user/editAccount";
+import { UserDecodedData } from "../@types/jwtToken";
+import { ThrowUnauthorized } from "./errorResponses/unauthorized401";
+import { verifyToken } from "./endpoints/user/verifyToken";
 
 const prisma = new PrismaClient();
 
-const verifyToken = (req: Request, res: Response, next: NextFunction) => {
+const verifyTokenMiddlewear = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
     const token = req.headers.authorization?.split(" ")[1]; // Extract the token from the Bearer scheme
 
     if (!token) {
@@ -20,12 +29,11 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
 
     jwt.verify(token, process.env.JWT_SECRET as string, (err, decoded) => {
         if (err) {
-            return res
-                .status(403)
-                .json({ message: "Failed to authenticate token." });
+            ThrowUnauthorized(res);
+            return;
         }
         // If the token is valid, save to request for use in other routes
-        req.user = decoded;
+        req.user = decoded as UserDecodedData;
         next();
     });
 };
@@ -35,7 +43,7 @@ const runServer = () => {
     const app = express();
 
     app.use(json());
-    app.use("/user", verifyToken);
+    app.use("/user", verifyTokenMiddlewear);
 
     app.get("/hello", async (req, res) => {
         const v = await prisma.$queryRawUnsafe("select version();");
@@ -43,14 +51,10 @@ const runServer = () => {
     });
 
     app.get("/login", login);
+    app.post("/createAccount", createAccount);
+    app.put("/user/editAccount", editAccount);
 
-    app.get("/user/verify-token", (req, res) => {
-        // If this callback gets called, the token is valid
-        // req.user will be populated with the payload's data
-        console.log(req.headers.authorization);
-        console.log(req.user);
-        res.json({ message: "Token is valid" });
-    });
+    app.get("/user/verifyToken", verifyToken);
 
     app.listen(PORT, () => {
         console.log(`App listening on  http://localhost:${PORT}`);
