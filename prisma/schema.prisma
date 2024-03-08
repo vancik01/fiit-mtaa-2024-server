@@ -42,7 +42,7 @@ model User {
   name              String
   verificationToken String?
   phoneNumber       String?            @unique
-  type              AccountType
+  type              AccountType?
   avatarURL         String?
   EventAssignment   EventAssignment[]
   AnnouncementItem  AnnouncementItem[]
@@ -56,8 +56,18 @@ enum EventPresenceStatus {
 }
 
 enum EventAssignmentStatus {
-  Active
-  SignedOff
+  ACTIVE
+  SIGNED_OFF
+}
+
+model Location {
+  id          String  @id @default(cuid())
+  locationLat Float
+  locationLon Float
+  address     String
+  city        String
+  name        String?
+  Event       Event[]
 }
 
 model Event {
@@ -68,8 +78,8 @@ model Event {
   happeningAt           DateTime
   description           String?
   thumbnailURL          String?
-  locationLat           Float
-  locationLon           Float
+  setupComplete         Boolean                 @default(false)
+  Location              Location                @relation(fields: [locationId], references: [id])
   capacity              Int
   sallaryType           SallaryType
   sallary               String
@@ -81,6 +91,7 @@ model Event {
   HarmonogramItem       HarmonogramItem[]
   userId                String
   EventCategoryRelation EventCategoryRelation[]
+  locationId            String
 }
 
 model EventAssignment {
@@ -90,9 +101,10 @@ model EventAssignment {
   userId           String
   event            Event                 @relation(fields: [eventId], references: [id])
   eventId          String
-  assignmentStatus EventAssignmentStatus @default(Active)
+  assignmentStatus EventAssignmentStatus @default(ACTIVE)
   arrivedAt        DateTime?
   leftAt           DateTime?
+  presenceStatus   EventPresenceStatus   @default(NOT_PRESENT)
 }
 
 model EventCategory {
