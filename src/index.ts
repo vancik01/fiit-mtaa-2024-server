@@ -11,6 +11,7 @@ import { editAccount } from "./endpoints/user/editAccount";
 import { UserDecodedData } from "../@types/jwtToken";
 import { ThrowUnauthorized } from "./errorResponses/unauthorized401";
 import { verifyToken } from "./endpoints/user/verifyToken";
+import { getUser } from "./endpoints/user";
 
 const prisma = new PrismaClient();
 
@@ -52,8 +53,9 @@ const runServer = () => {
 
     app.get("/login", login);
     app.post("/createAccount", createAccount);
-    app.put("/user/editAccount", editAccount);
 
+    app.get("/user/", getUser);
+    app.put("/user/editAccount", editAccount);
     app.get("/user/verifyToken", verifyToken);
 
     app.listen(PORT, () => {
