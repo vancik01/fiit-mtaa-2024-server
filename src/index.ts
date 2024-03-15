@@ -12,10 +12,14 @@ import { UserDecodedData } from "../@types/jwtToken";
 import { ThrowUnauthorized } from "./errorResponses/unauthorized401";
 import { verifyToken } from "./endpoints/user/verifyToken";
 import { getUser } from "./endpoints/user";
+import { getEventDetail } from "./endpoints/events/[eventId]";
+import { getPopularEvents } from "./endpoints/events/popular";
+import { getEvents } from "./endpoints/events";
+import { getActiveEvent } from "./endpoints/events/active";
 
 const prisma = new PrismaClient();
 
-const verifyTokenMiddlewear = (
+const verifyTokenMiddleware = (
     req: Request,
     res: Response,
     next: NextFunction
@@ -44,7 +48,7 @@ const runServer = () => {
     const app = express();
 
     app.use(json());
-    app.use("/user", verifyTokenMiddlewear);
+    app.use("/user", verifyTokenMiddleware);
 
     app.get("/hello", async (req, res) => {
         const v = await prisma.$queryRawUnsafe("select version();");
@@ -57,6 +61,11 @@ const runServer = () => {
     app.get("/user/", getUser);
     app.put("/user/editAccount", editAccount);
     app.get("/user/verifyToken", verifyToken);
+
+    app.get("/events", getEvents);
+    app.get("/events/popular", getPopularEvents);
+    app.get("/events/active", getActiveEvent);
+    app.get("/events/:eventId", getEventDetail);
 
     app.listen(PORT, () => {
         console.log(`App listening on  http://localhost:${PORT}`);
