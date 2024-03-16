@@ -16,6 +16,9 @@ import { getEventDetail } from "./endpoints/events/[eventId]";
 import { getPopularEvents } from "./endpoints/events/popular";
 import { getEvents } from "./endpoints/events";
 import { getActiveEvent } from "./endpoints/events/active";
+import { uploadEventImage } from "./endpoints/events/[eventId]/uploadImage";
+const multer = require("multer");
+const cors = require("cors");
 
 const prisma = new PrismaClient();
 
@@ -48,6 +51,7 @@ const runServer = () => {
     const app = express();
 
     app.use(json());
+    app.use(cors());
     app.use("/user", verifyTokenMiddleware);
 
     app.get("/hello", async (req, res) => {
@@ -66,6 +70,12 @@ const runServer = () => {
     app.get("/events/popular", getPopularEvents);
     app.get("/events/active", getActiveEvent);
     app.get("/events/:eventId", getEventDetail);
+
+    app.post(
+        "/events/:eventId/uploadImage",
+        multer().single("image"),
+        uploadEventImage
+    );
 
     app.listen(PORT, () => {
         console.log(`App listening on  http://localhost:${PORT}`);
