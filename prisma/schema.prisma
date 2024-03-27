@@ -19,8 +19,8 @@ generator dbml {
 }
 
 enum AccountType {
-  WORKER
-  COMPANY
+  HARVESTER
+  ORGANISER
 }
 
 enum SallaryType {
@@ -41,7 +41,7 @@ model User {
   password          String
   name              String
   verificationToken String?
-  phoneNumber       String?            @unique
+  phoneNumber       String?
   type              AccountType?
   avatarURL         String?
   EventAssignment   EventAssignment[]

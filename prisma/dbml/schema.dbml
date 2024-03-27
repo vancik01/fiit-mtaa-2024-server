@@ -9,7 +9,7 @@ Table User {
   password String [not null]
   name String [not null]
   verificationToken String
-  phoneNumber String [unique]
+  phoneNumber String
   type AccountType
   avatarURL String
   EventAssignment EventAssignment [not null]
@@ -102,8 +102,8 @@ Table HarmonogramItem {
 }
 
 Enum AccountType {
-  WORKER
-  COMPANY
+  HARVESTER
+  ORGANISER
 }
 
 Enum SallaryType {

@@ -37,7 +37,7 @@ const getRandomUser = (type: AccountType, n: number, email?: string) => {
                 email: email ? email : faker.internet.email(),
                 name: faker.person.fullName(),
                 phoneNumber: faker.phone.number(),
-                type: type ? type : "WORKER",
+                type: type ? type : "HARVESTER",
                 avatarURL: getRandomimage(),
                 password: md5("password123")
             };
@@ -139,9 +139,9 @@ async function main() {
 
     await prisma.user.createMany({
         data: [
-            ...getRandomUser("COMPANY", 1, "admin1@grabit.sk"),
-            ...getRandomUser("COMPANY", 1, "admin2@grabit.sk"),
-            ...getRandomUser("COMPANY", 1, "admin3@grabit.sk")
+            ...getRandomUser("ORGANISER", 1, "admin1@grabit.sk"),
+            ...getRandomUser("ORGANISER", 1, "admin2@grabit.sk"),
+            ...getRandomUser("ORGANISER", 1, "admin3@grabit.sk")
         ]
     });
     const adminUsers = await prisma.user.findMany({ select: { id: true } });
@@ -181,7 +181,7 @@ async function main() {
             { length: faker.number.int({ min: 0, max: event.capacity }) },
             async () =>
                 prisma.user.create({
-                    data: getRandomUser("WORKER", 1)[0],
+                    data: getRandomUser("ORGANISER", 1)[0],
                     select: { id: true }
                 })
         );
@@ -236,7 +236,7 @@ async function main() {
     });
 
     const workerId = await prisma.user.create({
-        data: getRandomUser("WORKER", 1, "worker1@grabit.sk")[0],
+        data: getRandomUser("ORGANISER", 1, "worker1@grabit.sk")[0],
         select: {
             id: true
         }
@@ -259,7 +259,7 @@ async function main() {
         { length: liveEvent.capacity - 1 },
         async () =>
             prisma.user.create({
-                data: getRandomUser("WORKER", 1)[0],
+                data: getRandomUser("HARVESTER", 1)[0],
                 select: { id: true }
             })
     );
