@@ -16,10 +16,11 @@ import { getEventDetail } from "./endpoints/events/[eventId]";
 import { getPopularEvents } from "./endpoints/events/popular";
 import { getEvents } from "./endpoints/events";
 import { getActiveEvent } from "./endpoints/events/active";
+import { createEvent } from "./endpoints/events/create";
 
 const prisma = new PrismaClient();
 
-const verifyTokenMiddleware = (
+const verifyTokenMiddleware = async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -32,15 +33,33 @@ const verifyTokenMiddleware = (
             .json({ message: "No token provided.", code: "" });
     }
 
-    jwt.verify(token, process.env.JWT_SECRET as string, (err, decoded) => {
-        if (err) {
-            ThrowUnauthorized(res);
-            return;
+    jwt.verify(
+        token,
+        process.env.JWT_SECRET as string,
+        async (err, decoded) => {
+            if (err) {
+                ThrowUnauthorized(res);
+                return;
+            }
+            const decodedData = decoded as UserDecodedData;
+            req.user = decoded;
+            const user = await prisma.user.findMany({
+                where: {
+                    id: decodedData.id
+                },
+                select: {
+                    id: true
+                }
+            });
+
+            if (user.length !== 1) {
+                return ThrowUnauthorized(res);
+            }
+            // If the token is valid, save to request for use in other routes
+
+            next();
         }
-        // If the token is valid, save to request for use in other routes
-        req.user = decoded as UserDecodedData;
-        next();
-    });
+    );
 };
 
 const runServer = () => {
@@ -49,6 +68,7 @@ const runServer = () => {
 
     app.use(json());
     app.use("/user", verifyTokenMiddleware);
+    app.use("/events", verifyTokenMiddleware);
 
     app.get("/hello", async (req, res) => {
         const v = await prisma.$queryRawUnsafe("select version();");
@@ -67,6 +87,7 @@ const runServer = () => {
     app.get("/events/active", getActiveEvent);
     app.get("/events/:eventId", getEventDetail);
 
+    app.post("/events/create", createEvent);
     app.listen(PORT, () => {
         console.log(`App listening on  http://localhost:${PORT}`);
         console.log("port", process.env.PORT);

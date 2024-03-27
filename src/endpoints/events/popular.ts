@@ -22,7 +22,9 @@ export const getPopularEvents = async (req: Request, res: Response) => {
                 toolingRequired: true,
                 toolingProvided: true,
                 status: true,
-                sallary: true
+                sallaryAmount: true,
+                sallaryProductName: true,
+                sallaryUnit: true
             },
             orderBy: {
                 createdAt: "desc"
