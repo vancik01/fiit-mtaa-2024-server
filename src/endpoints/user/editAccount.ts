@@ -1,18 +1,15 @@
-import md5 from "md5";
-import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 import { ThrowBadRequest } from "../../errorResponses/badRequest400";
-import { ThrowNotFound } from "../../errorResponses/notFound404";
-import { ThrowForbidden } from "../../errorResponses/forbidden403";
 import { UserDecodedData } from "../../../@types/jwtToken";
+import { ThrowInternalServerError } from "../../errorResponses/internalServer500";
 
 const prisma = new PrismaClient();
 
 export const editAccount = async (req: Request, res: Response) => {
-    const { name, avatarURL, phoneNumber } = req.body;
+    const { name, phoneNumber } = req.body;
 
-    if (!name && !avatarURL && !phoneNumber) {
+    if (!name && !phoneNumber) {
         ThrowBadRequest(res);
         return;
     }
@@ -24,16 +21,13 @@ export const editAccount = async (req: Request, res: Response) => {
                 id: userData.id
             },
             data: {
-                name: name
-                // TODO: ADD FIELDS TO UPDATE
+                name: name,
+                phoneNumber: phoneNumber
             }
         });
     } catch (error) {
-        ThrowNotFound(res);
+        ThrowInternalServerError(res);
         return;
     }
-
-    // console.log(update);
-
     res.status(200).send();
 };
