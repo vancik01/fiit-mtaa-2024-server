@@ -51,6 +51,7 @@ model User {
 
 enum EventPresenceStatus {
   NOT_PRESENT
+  DID_NOT_ARRIVE
   PRESENT
   LEFT
 }

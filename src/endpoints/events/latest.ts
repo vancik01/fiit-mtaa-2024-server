@@ -5,7 +5,7 @@ import { ThrowInternalServerError } from "../../errorResponses/internalServer500
 
 const prisma = new PrismaClient();
 
-export const getPopularEvents = async (req: Request, res: Response) => {
+export const getLatestEvents = async (req: Request, res: Response) => {
     console.log(1);
 
     try {

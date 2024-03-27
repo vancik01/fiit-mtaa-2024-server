@@ -13,7 +13,7 @@ import { ThrowUnauthorized } from "./errorResponses/unauthorized401";
 import { verifyToken } from "./endpoints/user/verifyToken";
 import { getUser } from "./endpoints/user";
 import { getEventDetail } from "./endpoints/events/[eventId]";
-import { getPopularEvents } from "./endpoints/events/popular";
+import { getLatestEvents } from "./endpoints/events/latest";
 import { getEvents } from "./endpoints/events";
 import { getActiveEvent } from "./endpoints/events/active";
 import { createEvent } from "./endpoints/events/create";
@@ -41,22 +41,24 @@ const verifyTokenMiddleware = async (
                 ThrowUnauthorized(res);
                 return;
             }
-            const decodedData = decoded as UserDecodedData;
+
             req.user = decoded;
             const user = await prisma.user.findMany({
                 where: {
-                    id: decodedData.id
+                    id: (decoded as UserDecodedData).id
                 },
                 select: {
-                    id: true
+                    id: true,
+                    type: true
                 }
             });
 
-            if (user.length !== 1) {
+            if (
+                user.length !== 1 ||
+                (decoded as UserDecodedData).role !== user[0].type
+            ) {
                 return ThrowUnauthorized(res);
             }
-            // If the token is valid, save to request for use in other routes
-
             next();
         }
     );
@@ -83,7 +85,7 @@ const runServer = () => {
     app.get("/user/verifyToken", verifyToken);
 
     app.get("/events", getEvents);
-    app.get("/events/popular", getPopularEvents);
+    app.get("/events/latest", getLatestEvents);
     app.get("/events/active", getActiveEvent);
     app.get("/events/:eventId", getEventDetail);
 

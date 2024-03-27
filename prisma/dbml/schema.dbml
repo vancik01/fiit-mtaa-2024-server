@@ -121,6 +121,7 @@ Enum EventStatus {
 
 Enum EventPresenceStatus {
   NOT_PRESENT
+  DID_NOT_ARRIVE
   PRESENT
   LEFT
 }

@@ -6,6 +6,8 @@ import { CreateEventData } from "../../../@types/event";
 import { ThrowBadRequest } from "../../errorResponses/badRequest400";
 import { UserDecodedData } from "../../../@types/jwtToken";
 import moment from "moment";
+import * as Yup from "yup";
+import { ThrowForbidden } from "../../errorResponses/forbidden403";
 
 const prisma = new PrismaClient();
 
@@ -13,14 +15,46 @@ export const createEvent = async (req: Request, res: Response) => {
     const data = req.body as CreateEventData;
     const userData = req.user as UserDecodedData;
 
-    if (
-        !data.name ||
-        !data.capacity ||
-        !data.happeningAt ||
-        !data.location ||
-        !data.sallaryType ||
-        !data.sallaryAmount
-    ) {
+    if (userData.role !== "ORGANISER") {
+        return ThrowForbidden(res);
+    }
+
+    const validationSchema = Yup.object<CreateEventData>({
+        capacity: Yup.number().min(0).required(),
+        description: Yup.string().nullable().required(),
+        happeningAt: Yup.date().min(new Date()).required(),
+        location: Yup.object({
+            address: Yup.string().required(),
+            city: Yup.string().required(),
+            locationLat: Yup.number().required(),
+            locationLon: Yup.number().required(),
+            name: Yup.string().nullable()
+        }),
+        name: Yup.string().nullable(),
+        sallaryAmount: Yup.number().min(0).required(),
+        sallaryProductName: Yup.string().nullable(),
+        sallaryUnit: Yup.string().nullable(),
+        sallaryType: Yup.string().oneOf([SallaryType.GOODS, SallaryType.MONEY]),
+        thumbnailURL: Yup.string().nullable(),
+        toolingProvided: Yup.string().nullable(),
+        toolingRequired: Yup.string().nullable(),
+        categories: Yup.array(Yup.string().required()).nullable(),
+        harmonogramItems: Yup.array(
+            Yup.object({
+                title: Yup.string().required(),
+                description: Yup.string().required(),
+                from: Yup.string().required(),
+                to: Yup.string().required()
+            }).required()
+        ).nullable()
+    });
+
+    try {
+        validationSchema.validateSync(data, {
+            abortEarly: false
+        });
+    } catch (error) {
+        console.log((error as Yup.ValidationError).errors);
         return ThrowBadRequest(res);
     }
 
@@ -53,7 +87,7 @@ export const createEvent = async (req: Request, res: Response) => {
               };
 
     try {
-        const locationObject = await prisma.location.create({
+        const location = await prisma.location.create({
             data: {
                 address: data.location.address,
                 city: data.location.city,
@@ -75,7 +109,7 @@ export const createEvent = async (req: Request, res: Response) => {
                 description: data.description,
                 thumbnailURL: data.thumbnailURL,
                 userId: userData.id,
-                locationId: locationObject.id
+                locationId: location.id
             },
             select: {
                 id: true

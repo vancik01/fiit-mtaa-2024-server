@@ -3,7 +3,7 @@ import { HarmonogramItem, SallaryType } from "@prisma/client";
 /**
  * Request
  */
-export interface CreateEventData {
+export type CreateEventData = {
     capacity: number;
     description?: string;
     happeningAt: Date;
@@ -19,7 +19,7 @@ export interface CreateEventData {
     categories: [string];
     harmonogramItems: HarmonogramItemData[];
     [property: string]: any;
-}
+};
 
 export interface LocationData {
     address: string;
