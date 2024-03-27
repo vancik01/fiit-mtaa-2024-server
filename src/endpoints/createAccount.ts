@@ -1,6 +1,6 @@
 import md5 from "md5";
 import jwt from "jsonwebtoken";
-import { PrismaClient } from "@prisma/client";
+import { AccountType, PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 import { ThrowBadRequest } from "../errorResponses/badRequest400";
 import { ThrowNotFound } from "../errorResponses/notFound404";
@@ -9,9 +9,11 @@ import { ThrowForbidden } from "../errorResponses/forbidden403";
 const prisma = new PrismaClient();
 
 export const createAccount = async (req: Request, res: Response) => {
-    const { email, password, name } = req.body;
+    const { email, password, accountType, name, phoneNumber } = req.body;
 
-    if (!email || !password || !name) {
+    console.log(req.body);
+
+    if (!email || !password || !accountType || !name) {
         ThrowBadRequest(res);
         return;
     }
@@ -35,7 +37,8 @@ export const createAccount = async (req: Request, res: Response) => {
             email,
             name,
             password: md5(password),
-            type: "WORKER"
+            type: accountType,
+            phoneNumber
         },
         select: {
             id: true
@@ -45,7 +48,7 @@ export const createAccount = async (req: Request, res: Response) => {
     const accessToken = jwt.sign(
         {
             userID: user.id,
-            role: "WORKER"
+            role: accountType
         },
         process.env.JWT_SECRET as string,
         {
@@ -54,6 +57,10 @@ export const createAccount = async (req: Request, res: Response) => {
     );
 
     res.status(200).send({
-        token: accessToken
+        token: accessToken,
+        email: email,
+        accountType: accountType,
+        name: name,
+        phoneNumber: phoneNumber
     });
 };
