@@ -11,8 +11,6 @@ const prisma = new PrismaClient();
 export const createAccount = async (req: Request, res: Response) => {
     const { email, password, accountType, name, phoneNumber } = req.body;
 
-    console.log(req.body);
-
     if (!email || !password || !accountType || !name) {
         ThrowBadRequest(res);
         return;

@@ -55,7 +55,7 @@ const runServer = () => {
         res.json({ response: v });
     });
 
-    app.get("/login", login);
+    app.post("/login", login);
     app.post("/createAccount", createAccount);
 
     app.get("/user/", getUser);
