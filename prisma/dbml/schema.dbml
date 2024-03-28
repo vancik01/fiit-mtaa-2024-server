@@ -39,7 +39,9 @@ Table Event {
   Location Location [not null]
   capacity Int [not null]
   sallaryType SallaryType [not null]
-  sallary String [not null]
+  sallaryAmount Float [not null]
+  sallaryUnit String
+  sallaryProductName String
   toolingRequired String
   toolingProvided String
   status EventStatus [not null, default: 'CREATED']
@@ -93,8 +95,8 @@ Table AnnouncementItem {
 Table HarmonogramItem {
   id String [pk]
   createdAt DateTime [default: `now()`, not null]
-  from DateTime [not null]
-  to DateTime [not null]
+  from String [not null]
+  to String [not null]
   title String [not null]
   description String
   event Event [not null]
@@ -119,6 +121,7 @@ Enum EventStatus {
 
 Enum EventPresenceStatus {
   NOT_PRESENT
+  DID_NOT_ARRIVE
   PRESENT
   LEFT
 }

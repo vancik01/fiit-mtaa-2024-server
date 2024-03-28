@@ -48,18 +48,23 @@ const getRandomEventData = () => {
     const sallaryType = faker.datatype.boolean()
         ? SallaryType.GOODS
         : SallaryType.MONEY;
+
     const ret = {
         capacity: faker.number.int({ min: 5, max: 10 }),
         description: faker.commerce.productDescription(),
         happeningAt: faker.date.future(),
         name: faker.commerce.productName(),
         sallaryType: sallaryType,
-        sallary:
+        sallaryAmount:
             sallaryType === "MONEY"
-                ? `${(faker.number.int({ min: 8, max: 30 }) * 0.5).toFixed(2)}€`
-                : `${(faker.number.int({ min: 1, max: 7 }) * 0.2).toFixed(
-                      2
-                  )} kg of goods`,
+                ? faker.number.int({ min: 8, max: 30 }) * 0.5
+                : faker.number.int({ min: 1, max: 7 }) * 0.2,
+        sallaryUnit:
+            sallaryType === "GOODS"
+                ? faker.helpers.arrayElement(["kg", "ks", "mg", "ml"])
+                : null,
+        sallaryProductName:
+            sallaryType === "GOODS" ? faker.commerce.productName() : undefined,
         thumbnailURL: getRandomimage(),
         toolingProvided: faker.datatype.boolean() ? "Fúriky, kýble" : null,
         toolingRequired: faker.datatype.boolean() ? "Rukavice, lopaty" : null
@@ -74,10 +79,10 @@ const getHarmonogramItemData = (happeningAt: Date, offset: number) => {
         .set("minutes", 0)
         .set("seconds", 0);
     return {
-        from: from.add(offset, "hours").toDate(),
+        from: from.add(offset, "hours").format("HH:MM"),
         title: faker.lorem.words({ min: 2, max: 10 }),
         description: faker.lorem.paragraph(),
-        to: from.add(1, "hours").toDate()
+        to: from.add(1, "hours").format("HH:MM")
     };
 };
 

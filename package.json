@@ -32,12 +32,14 @@
   },
   "dependencies": {
     "@prisma/client": "^5.10.2",
+    "@types/yup": "^0.32.0",
     "dotenv": "^16.4.5",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
     "md5": "^2.3.0",
     "moment": "^2.30.1",
     "passport": "^0.7.0",
-    "passport-jwt": "^4.0.1"
+    "passport-jwt": "^4.0.1",
+    "yup": "^1.4.0"
   }
 }

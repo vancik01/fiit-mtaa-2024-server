@@ -13,13 +13,15 @@ import { ThrowUnauthorized } from "./errorResponses/unauthorized401";
 import { verifyToken } from "./endpoints/user/verifyToken";
 import { getUser } from "./endpoints/user";
 import { getEventDetail } from "./endpoints/events/[eventId]";
-import { getPopularEvents } from "./endpoints/events/popular";
+import { getLatestEvents } from "./endpoints/events/latest";
 import { getEvents } from "./endpoints/events";
 import { getActiveEvent } from "./endpoints/events/active";
+import { createEvent } from "./endpoints/events/create";
+import { updateEvent } from "./endpoints/events/[eventId]/update";
 
 const prisma = new PrismaClient();
 
-const verifyTokenMiddleware = (
+const verifyTokenMiddleware = async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -32,15 +34,35 @@ const verifyTokenMiddleware = (
             .json({ message: "No token provided.", code: "" });
     }
 
-    jwt.verify(token, process.env.JWT_SECRET as string, (err, decoded) => {
-        if (err) {
-            ThrowUnauthorized(res);
-            return;
+    jwt.verify(
+        token,
+        process.env.JWT_SECRET as string,
+        async (err, decoded) => {
+            if (err) {
+                ThrowUnauthorized(res);
+                return;
+            }
+
+            req.user = decoded;
+            const user = await prisma.user.findMany({
+                where: {
+                    id: (decoded as UserDecodedData).id
+                },
+                select: {
+                    id: true,
+                    type: true
+                }
+            });
+
+            if (
+                user.length !== 1 ||
+                (decoded as UserDecodedData).role !== user[0].type
+            ) {
+                return ThrowUnauthorized(res);
+            }
+            next();
         }
-        // If the token is valid, save to request for use in other routes
-        req.user = decoded as UserDecodedData;
-        next();
-    });
+    );
 };
 
 const runServer = () => {
@@ -49,6 +71,7 @@ const runServer = () => {
 
     app.use(json());
     app.use("/user", verifyTokenMiddleware);
+    app.use("/events", verifyTokenMiddleware);
 
     app.get("/hello", async (req, res) => {
         const v = await prisma.$queryRawUnsafe("select version();");
@@ -63,9 +86,12 @@ const runServer = () => {
     app.get("/user/verifyToken", verifyToken);
 
     app.get("/events", getEvents);
-    app.get("/events/popular", getPopularEvents);
+    app.get("/events/latest", getLatestEvents);
     app.get("/events/active", getActiveEvent);
     app.get("/events/:eventId", getEventDetail);
+
+    app.post("/events/create", createEvent);
+    app.put("/events/:eventId/update", updateEvent);
 
     app.listen(PORT, () => {
         console.log(`App listening on  http://localhost:${PORT}`);
