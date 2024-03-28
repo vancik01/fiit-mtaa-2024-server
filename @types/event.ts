@@ -17,7 +17,25 @@ export type CreateEventData = {
     toolingProvided?: string;
     toolingRequired?: string;
     categories: [string];
-    harmonogramItems: HarmonogramItemData[];
+    harmonogramItems: CreateHarmonogramItemData[];
+    [property: string]: any;
+};
+
+export type UpdateEventData = {
+    capacity: number;
+    description?: string;
+    happeningAt: Date;
+    location: LocationData;
+    name: string;
+    sallaryAmount: number;
+    sallaryProductName?: string;
+    sallaryUnit?: string;
+    sallaryType: SallaryType;
+    thumbnailURL?: string;
+    toolingProvided?: string;
+    toolingRequired?: string;
+    categories: [string];
+    harmonogramItems: CreateHarmonogramItemData[];
     [property: string]: any;
 };
 
@@ -30,7 +48,7 @@ export interface LocationData {
     [property: string]: any;
 }
 
-export interface HarmonogramItemData {
+export interface CreateHarmonogramItemData {
     title: string;
     description: string;
     from: string;

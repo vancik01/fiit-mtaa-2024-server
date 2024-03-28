@@ -59,7 +59,10 @@ const getRandomEventData = () => {
             sallaryType === "MONEY"
                 ? faker.number.int({ min: 8, max: 30 }) * 0.5
                 : faker.number.int({ min: 1, max: 7 }) * 0.2,
-        sallaryUnit: sallaryType === "GOODS" ? "kg" : "€",
+        sallaryUnit:
+            sallaryType === "GOODS"
+                ? faker.helpers.arrayElement(["kg", "ks", "mg", "ml"])
+                : null,
         sallaryProductName:
             sallaryType === "GOODS" ? faker.commerce.productName() : undefined,
         thumbnailURL: getRandomimage(),

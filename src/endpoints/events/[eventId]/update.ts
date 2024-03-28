@@ -1,25 +1,32 @@
 import { AccountType, PrismaClient, SallaryType } from "@prisma/client";
 import { Request, Response } from "express";
-import { ThrowNotFound } from "../../errorResponses/notFound404";
-import { ThrowInternalServerError } from "../../errorResponses/internalServer500";
-import { CreateEventData } from "../../../@types/event";
-import { ThrowBadRequest } from "../../errorResponses/badRequest400";
-import { UserDecodedData } from "../../../@types/jwtToken";
 import moment from "moment";
 import * as Yup from "yup";
-import { ThrowForbidden } from "../../errorResponses/forbidden403";
+import { CreateEventData, UpdateEventData } from "../../../../@types/event";
+import { UserDecodedData } from "../../../../@types/jwtToken";
+import { ThrowForbidden } from "../../../errorResponses/forbidden403";
+import { ThrowBadRequest } from "../../../errorResponses/badRequest400";
+import { ThrowInternalServerError } from "../../../errorResponses/internalServer500";
+import { ThrowNotFound } from "../../../errorResponses/notFound404";
+import { getArrayDifference } from "../../../../helpers/arrayDifference";
 
 const prisma = new PrismaClient();
 
-export const createEvent = async (req: Request, res: Response) => {
-    const data = req.body as CreateEventData;
+export const updateEvent = async (req: Request, res: Response) => {
+    const data = req.body as UpdateEventData;
     const userData = req.user as UserDecodedData;
+
+    const { eventId } = req.params;
+
+    if (!eventId) {
+        return ThrowBadRequest(res);
+    }
 
     if (userData.role !== "ORGANISER") {
         return ThrowForbidden(res);
     }
 
-    const validationSchema = Yup.object<CreateEventData>({
+    const validationSchema = Yup.object<UpdateEventData>({
         capacity: Yup.number().required().min(0),
         description: Yup.string().nullable(),
         happeningAt: Yup.date().required().min(new Date()),
@@ -40,7 +47,7 @@ export const createEvent = async (req: Request, res: Response) => {
         thumbnailURL: Yup.string().nullable(),
         toolingProvided: Yup.string().nullable(),
         toolingRequired: Yup.string().nullable(),
-        categories: Yup.array(Yup.string().required()).nullable(),
+        categories: Yup.array(Yup.string().required()),
         harmonogramItems: Yup.array(
             Yup.object({
                 title: Yup.string().required(),
@@ -48,7 +55,7 @@ export const createEvent = async (req: Request, res: Response) => {
                 from: Yup.string().required(),
                 to: Yup.string().required()
             }).required()
-        ).nullable()
+        ).required()
     });
 
     try {
@@ -72,6 +79,43 @@ export const createEvent = async (req: Request, res: Response) => {
         data.sallaryType === SallaryType.MONEY &&
         (data.sallaryProductName || data.sallaryUnit)
     ) {
+        return ThrowBadRequest(res);
+    }
+
+    const oldEventObject = await prisma.event.findFirst({
+        where: {
+            userId: userData.id,
+            id: eventId
+        },
+        include: {
+            EventCategoryRelation: {
+                select: {
+                    eventCategoryId: true
+                }
+            },
+            HarmonogramItem: {
+                select: {
+                    id: true
+                }
+            },
+            Location: {
+                select: {
+                    id: true
+                }
+            },
+            EventAssignment: {
+                select: {
+                    id: true
+                }
+            }
+        }
+    });
+
+    if (oldEventObject === null) {
+        return ThrowNotFound(res);
+    }
+
+    if (oldEventObject.EventAssignment.length > data.capacity) {
         return ThrowBadRequest(res);
     }
 
@@ -103,7 +147,10 @@ export const createEvent = async (req: Request, res: Response) => {
     }
 
     try {
-        const location = await prisma.location.create({
+        const location = await prisma.location.update({
+            where: {
+                id: oldEventObject.locationId
+            },
             data: {
                 address: data.location.address,
                 city: data.location.city,
@@ -113,9 +160,12 @@ export const createEvent = async (req: Request, res: Response) => {
             }
         });
 
-        const event = await prisma.event.create({
+        await prisma.event.update({
+            where: {
+                id: eventId,
+                userId: userData.id
+            },
             data: {
-                name: data.name,
                 capacity: data.capacity,
                 happeningAt: data.happeningAt,
                 sallaryType: data.sallaryType,
@@ -132,39 +182,34 @@ export const createEvent = async (req: Request, res: Response) => {
             }
         });
 
-        if (data.categories && data.categories.length > 0) {
-            try {
-                await prisma.eventCategoryRelation.createMany({
-                    data: data.categories.map((category) => ({
-                        eventCategoryId: category,
-                        eventId: event.id
-                    }))
-                });
-            } catch (error) {
-                return ThrowBadRequest(res);
+        await prisma.eventCategoryRelation.deleteMany({
+            where: {
+                eventId: eventId
             }
-        }
+        });
 
-        if (data.harmonogramItems && data.harmonogramItems.length > 0) {
-            try {
-                await prisma.harmonogramItem.createMany({
-                    data: data.harmonogramItems.map((harmonogramItem) => {
-                        return {
-                            eventId: event.id,
-                            from: harmonogramItem.from,
-                            to: harmonogramItem.to,
-                            title: harmonogramItem.title,
-                            description: harmonogramItem.description
-                        };
-                    })
-                });
-            } catch (error) {
-                console.log(error);
-                return ThrowBadRequest(res);
+        await prisma.harmonogramItem.deleteMany({
+            where: {
+                eventId: eventId
             }
-        }
+        });
 
-        return res.status(200).json({ eventId: event.id });
+        await prisma.eventCategoryRelation.createMany({
+            data: data.categories.map((categoryId) => ({
+                eventCategoryId: categoryId,
+                eventId: eventId
+            }))
+        });
+
+        await prisma.harmonogramItem.createMany({
+            data: data.harmonogramItems.map((harmoogramItem) => ({
+                ...harmoogramItem,
+                eventId: eventId,
+                id: undefined
+            }))
+        });
+
+        return res.status(200).send();
     } catch (error) {
         console.log(error);
         return ThrowInternalServerError(res);

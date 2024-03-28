@@ -17,6 +17,7 @@ import { getLatestEvents } from "./endpoints/events/latest";
 import { getEvents } from "./endpoints/events";
 import { getActiveEvent } from "./endpoints/events/active";
 import { createEvent } from "./endpoints/events/create";
+import { updateEvent } from "./endpoints/events/[eventId]/update";
 
 const prisma = new PrismaClient();
 
@@ -90,6 +91,8 @@ const runServer = () => {
     app.get("/events/:eventId", getEventDetail);
 
     app.post("/events/create", createEvent);
+    app.put("/events/:eventId/update", updateEvent);
+
     app.listen(PORT, () => {
         console.log(`App listening on  http://localhost:${PORT}`);
         console.log("port", process.env.PORT);
