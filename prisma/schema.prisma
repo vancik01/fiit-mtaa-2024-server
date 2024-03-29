@@ -34,6 +34,26 @@ enum EventStatus {
   ARCHIVED
 }
 
+enum EventPresenceStatus {
+  NOT_PRESENT
+  DID_NOT_ARRIVE
+  PRESENT
+  LEFT
+}
+
+enum EventAssignmentStatus {
+  ACTIVE
+  SIGNED_OFF
+}
+
+enum ColorVariant {
+  CHERRY
+  LEMON
+  LIME
+  APPLE
+  ORANGE
+}
+
 model User {
   id                String             @id @default(cuid())
   email             String             @unique
@@ -47,18 +67,6 @@ model User {
   EventAssignment   EventAssignment[]
   AnnouncementItem  AnnouncementItem[]
   Event             Event[]
-}
-
-enum EventPresenceStatus {
-  NOT_PRESENT
-  DID_NOT_ARRIVE
-  PRESENT
-  LEFT
-}
-
-enum EventAssignmentStatus {
-  ACTIVE
-  SIGNED_OFF
 }
 
 model Location {
@@ -117,6 +125,7 @@ model EventCategory {
   createdAt             DateTime                @default(now())
   name                  String
   icon                  String
+  colorVariant          ColorVariant            @default(LIME)
   EventCategoryRelation EventCategoryRelation[]
 }
 

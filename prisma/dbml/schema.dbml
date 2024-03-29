@@ -71,6 +71,7 @@ Table EventCategory {
   createdAt DateTime [default: `now()`, not null]
   name String [not null]
   icon String [not null]
+  colorVariant ColorVariant [not null, default: 'LIME']
   EventCategoryRelation EventCategoryRelation [not null]
 }
 
@@ -129,6 +130,14 @@ Enum EventPresenceStatus {
 Enum EventAssignmentStatus {
   ACTIVE
   SIGNED_OFF
+}
+
+Enum ColorVariant {
+  CHERRY
+  LEMON
+  LIME
+  APPLE
+  ORANGE
 }
 
 Ref: Event.userId > User.id

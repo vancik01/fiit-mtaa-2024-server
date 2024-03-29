@@ -1,5 +1,6 @@
 import {
     AccountType,
+    ColorVariant,
     Event,
     EventStatus,
     PrismaClient,
@@ -98,41 +99,46 @@ function slugify(title: string) {
 }
 
 async function main() {
-    const fruitsAndVegetablesEmojis = [
-        { emoji: "🍎", name: "Jablko" },
-        { emoji: "🍐", name: "Hruška" },
-        { emoji: "🍊", name: "Mandarínka" },
-        { emoji: "🍋", name: "Citron" },
-        { emoji: "🍌", name: "Banán" },
-        { emoji: "🍉", name: "Melón" },
-        { emoji: "🍇", name: "Hrozno" },
-        { emoji: "🍓", name: "Jahoda" },
-        { emoji: "🫐", name: "Čučoriedky" },
-        { emoji: "🍒", name: "Čerešne" },
-        { emoji: "🍑", name: "Broskyňa" },
-        { emoji: "🥭", name: "Mango" },
-        { emoji: "🍍", name: "Ananás" },
-        { emoji: "🥥", name: "Kokos" },
-        { emoji: "🥝", name: "Kiwi" },
-        { emoji: "🍅", name: "Rajčina" },
-        { emoji: "🍆", name: "Baklažán" },
-        { emoji: "🥑", name: "Avokádo" },
-        { emoji: "🥦", name: "Brokolica" },
-        { emoji: "🥒", name: "Uhorka" },
-        { emoji: "🌶", name: "Paprika" },
-        { emoji: "🌽", name: "Kukurica" },
-        { emoji: "🥕", name: "Mrkva" },
-        { emoji: "🫒", name: "Oliva" },
-        { emoji: "🧄", name: "Cesnak" },
-        { emoji: "🧅", name: "Cibuľa" },
-        { emoji: "🥔", name: "Zemiak" },
-        { emoji: "🍠", name: "Batat" }
+    const fruitsAndVegetablesEmojis: {
+        emoji: string;
+        name: string;
+        colorVariant: ColorVariant;
+    }[] = [
+        { emoji: "🍎", name: "Jablko", colorVariant: ColorVariant.APPLE },
+        { emoji: "🍐", name: "Hruška", colorVariant: ColorVariant.APPLE },
+        { emoji: "🍊", name: "Mandarínka", colorVariant: ColorVariant.ORANGE },
+        { emoji: "🍋", name: "Citron", colorVariant: ColorVariant.LIME },
+        { emoji: "🍌", name: "Banán", colorVariant: ColorVariant.LIME },
+        { emoji: "🍉", name: "Melón", colorVariant: ColorVariant.CHERRY },
+        { emoji: "🍇", name: "Hrozno", colorVariant: ColorVariant.LIME },
+        { emoji: "🍓", name: "Jahoda", colorVariant: ColorVariant.CHERRY },
+        { emoji: "🫐", name: "Čučoriedky", colorVariant: ColorVariant.LEMON },
+        { emoji: "🍒", name: "Čerešne", colorVariant: ColorVariant.CHERRY },
+        { emoji: "🍑", name: "Broskyňa", colorVariant: ColorVariant.ORANGE },
+        { emoji: "🥭", name: "Mango", colorVariant: ColorVariant.LIME },
+        { emoji: "🍍", name: "Ananás", colorVariant: ColorVariant.APPLE },
+        { emoji: "🥥", name: "Kokos", colorVariant: ColorVariant.APPLE },
+        { emoji: "🥝", name: "Kiwi", colorVariant: ColorVariant.LIME },
+        { emoji: "🍅", name: "Rajčina", colorVariant: ColorVariant.CHERRY },
+        { emoji: "🍆", name: "Baklažán", colorVariant: ColorVariant.LIME },
+        { emoji: "🥑", name: "Avokádo", colorVariant: ColorVariant.LIME },
+        { emoji: "🥦", name: "Brokolica", colorVariant: ColorVariant.APPLE },
+        { emoji: "🥒", name: "Uhorka", colorVariant: ColorVariant.APPLE },
+        { emoji: "🌶", name: "Paprika", colorVariant: ColorVariant.CHERRY },
+        { emoji: "🌽", name: "Kukurica", colorVariant: ColorVariant.LEMON },
+        { emoji: "🥕", name: "Mrkva", colorVariant: ColorVariant.ORANGE },
+        { emoji: "🫒", name: "Oliva", colorVariant: ColorVariant.LIME },
+        { emoji: "🧄", name: "Cesnak", colorVariant: ColorVariant.LIME },
+        { emoji: "🧅", name: "Cibuľa", colorVariant: ColorVariant.LIME },
+        { emoji: "🥔", name: "Zemiak", colorVariant: ColorVariant.LIME },
+        { emoji: "🍠", name: "Batat", colorVariant: ColorVariant.ORANGE }
     ];
 
     await prisma.eventCategory.createMany({
         data: fruitsAndVegetablesEmojis.map((item) => ({
             icon: item.emoji,
-            name: item.name
+            name: item.name,
+            colorVariant: item.colorVariant
         }))
     });
 
