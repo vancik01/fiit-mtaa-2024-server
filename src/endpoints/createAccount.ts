@@ -45,7 +45,7 @@ export const createAccount = async (req: Request, res: Response) => {
 
     const accessToken = jwt.sign(
         {
-            userID: user.id,
+            id: user.id,
             role: accountType
         },
         process.env.JWT_SECRET as string,

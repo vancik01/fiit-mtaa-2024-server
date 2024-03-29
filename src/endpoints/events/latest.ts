@@ -59,7 +59,6 @@ export const getLatestEvents = async (req: Request, res: Response) => {
         if (events.length == 0) {
             return ThrowNotFound(res);
         }
-        console.log(events);
 
         return res.status(200).send({ events: events });
     } catch (error) {
