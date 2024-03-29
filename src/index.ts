@@ -5,6 +5,7 @@ import "dotenv/config";
 import { AccountType, PrismaClient } from "@prisma/client";
 import md5 from "md5";
 import jwt from "jsonwebtoken";
+const morgan = require("morgan");
 import { login } from "./endpoints/login";
 import { createAccount } from "./endpoints/createAccount";
 import { editAccount } from "./endpoints/user/editAccount";
@@ -71,7 +72,9 @@ const runServer = () => {
 
     app.use(json());
     app.use("/user", verifyTokenMiddleware);
-    app.use("/events", verifyTokenMiddleware);
+    app.use(morgan("dev"));
+
+    // app.use("/events", verifyTokenMiddleware);
 
     app.get("/hello", async (req, res) => {
         const v = await prisma.$queryRawUnsafe("select version();");

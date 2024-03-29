@@ -24,7 +24,22 @@ export const getLatestEvents = async (req: Request, res: Response) => {
                 status: true,
                 sallaryAmount: true,
                 sallaryProductName: true,
-                sallaryUnit: true
+                sallaryUnit: true,
+                EventCategoryRelation: {
+                    select: {
+                        EventCategory: {
+                            select: {
+                                name: true,
+                                icon: true
+                            }
+                        }
+                    }
+                },
+                User: {
+                    select: {
+                        name: true
+                    }
+                }
             },
             orderBy: {
                 createdAt: "desc"

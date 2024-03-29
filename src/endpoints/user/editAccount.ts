@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 
 export const editAccount = async (req: Request, res: Response) => {
     const { name, phoneNumber } = req.body;
-
+    console.log("Wocap");
     if (!name && !phoneNumber) {
         ThrowBadRequest(res);
         return;

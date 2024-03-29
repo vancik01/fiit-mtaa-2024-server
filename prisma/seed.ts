@@ -157,8 +157,8 @@ async function main() {
             .map((_, i) => ({
                 address: faker.location.streetAddress(),
                 city: faker.location.city(),
-                locationLat: faker.location.latitude(),
-                locationLon: faker.location.longitude()
+                locationLat: faker.location.latitude({ max: 180, min: -180 }),
+                locationLon: faker.location.longitude({ max: 180, min: -180 })
             }))
     });
 
