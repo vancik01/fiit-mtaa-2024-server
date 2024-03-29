@@ -32,6 +32,7 @@ enum EventStatus {
   CREATED
   PROGRESS
   ARCHIVED
+  CANCELLED
 }
 
 enum EventPresenceStatus {

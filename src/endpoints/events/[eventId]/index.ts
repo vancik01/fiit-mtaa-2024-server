@@ -10,16 +10,41 @@ export const getEventDetail = async (req: Request, res: Response) => {
 
     try {
         const event = await prisma.event.findUnique({
-            where: {
-                id: eventId
-            },
-            include: {
+            select: {
+                id: true,
+                name: true,
+                happeningAt: true,
+                description: true,
+                thumbnailURL: true,
                 Location: true,
+                sallaryType: true,
+                status: true,
+                sallaryAmount: true,
+                sallaryProductName: true,
+                sallaryUnit: true,
+                toolingProvided: true,
+                toolingRequired: true,
+                capacity: true,
+                EventCategoryRelation: {
+                    select: {
+                        EventCategory: {
+                            select: {
+                                id: true,
+                                name: true,
+                                icon: true,
+                                colorVariant: true
+                            }
+                        }
+                    }
+                },
                 User: {
                     select: {
                         name: true
                     }
                 }
+            },
+            where: {
+                id: eventId
             }
         });
 

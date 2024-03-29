@@ -161,6 +161,7 @@ async function main() {
         data: Array(15)
             .fill("")
             .map((_, i) => ({
+                name: faker.company.name(),
                 address: faker.location.streetAddress(),
                 city: faker.location.city(),
                 locationLat: faker.location.latitude({ max: 180, min: -180 }),

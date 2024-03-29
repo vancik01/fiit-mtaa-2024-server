@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { EventStatus, PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 import { ThrowNotFound } from "../../errorResponses/notFound404";
 import { ThrowInternalServerError } from "../../errorResponses/internalServer500";
@@ -17,10 +17,7 @@ export const getLatestEvents = async (req: Request, res: Response) => {
                 happeningAt: true,
                 thumbnailURL: true,
                 Location: true,
-                capacity: true,
                 sallaryType: true,
-                toolingRequired: true,
-                toolingProvided: true,
                 status: true,
                 sallaryAmount: true,
                 sallaryProductName: true,
@@ -29,8 +26,10 @@ export const getLatestEvents = async (req: Request, res: Response) => {
                     select: {
                         EventCategory: {
                             select: {
+                                id: true,
                                 name: true,
-                                icon: true
+                                icon: true,
+                                colorVariant: true
                             }
                         }
                     }
@@ -41,17 +40,30 @@ export const getLatestEvents = async (req: Request, res: Response) => {
                     }
                 }
             },
-            orderBy: {
-                createdAt: "desc"
-            }
+            where: {
+                status: EventStatus.CREATED,
+                happeningAt: {
+                    gt: new Date()
+                }
+            },
+            orderBy: [
+                {
+                    createdAt: "desc"
+                },
+                {
+                    name: "asc"
+                }
+            ]
         });
 
         if (events.length == 0) {
             return ThrowNotFound(res);
         }
+        console.log(events);
 
         return res.status(200).send({ events: events });
     } catch (error) {
+        console.log(error);
         return ThrowInternalServerError(res);
     }
 };
