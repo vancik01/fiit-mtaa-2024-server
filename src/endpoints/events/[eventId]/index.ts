@@ -37,6 +37,11 @@ export const getEventDetail = async (req: Request, res: Response) => {
                         }
                     }
                 },
+                _count: {
+                    select: {
+                        EventAssignment: true
+                    }
+                },
                 User: {
                     select: {
                         name: true
