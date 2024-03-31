@@ -19,6 +19,7 @@ import { getEvents } from "./endpoints/events";
 import { getActiveEvent } from "./endpoints/events/active";
 import { createEvent } from "./endpoints/events/create";
 import { updateEvent } from "./endpoints/events/[eventId]/update";
+import { getNearbyEvents } from "./endpoints/events/nearby";
 
 const prisma = new PrismaClient();
 
@@ -74,7 +75,7 @@ const runServer = () => {
     app.use("/user", verifyTokenMiddleware);
     app.use(morgan("dev"));
 
-    // app.use("/events", verifyTokenMiddleware);
+    app.use("/events", verifyTokenMiddleware);
 
     app.get("/hello", async (req, res) => {
         const v = await prisma.$queryRawUnsafe("select version();");
@@ -90,6 +91,7 @@ const runServer = () => {
 
     app.get("/events", getEvents);
     app.get("/events/latest", getLatestEvents);
+    app.get("/events/nearby", getNearbyEvents);
     app.get("/events/active", getActiveEvent);
     app.get("/events/:eventId", getEventDetail);
 
