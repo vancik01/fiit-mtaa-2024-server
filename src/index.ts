@@ -20,6 +20,7 @@ import { getActiveEvent } from "./endpoints/events/active";
 import { createEvent } from "./endpoints/events/create";
 import { updateEvent } from "./endpoints/events/[eventId]/update";
 import { getNearbyEvents } from "./endpoints/events/nearby";
+import { startEvent } from "./endpoints/events/[eventId]/startEvent";
 
 const prisma = new PrismaClient();
 
@@ -97,6 +98,7 @@ const runServer = () => {
 
     app.post("/events/create", createEvent);
     app.put("/events/:eventId/update", updateEvent);
+    app.put("/events/:eventId/startEvent", startEvent);
 
     app.listen(PORT, () => {
         console.log(`App listening on  http://localhost:${PORT}`);
