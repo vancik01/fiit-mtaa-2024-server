@@ -22,6 +22,7 @@ import { updateEvent } from "./endpoints/events/[eventId]/update";
 import { getNearbyEvents } from "./endpoints/events/nearby";
 import { startEvent } from "./endpoints/events/[eventId]/startEvent";
 import { eventWorkersAttendance } from "./endpoints/events/[eventId]/attendance";
+const swaggerUi = require("swagger-ui-express");
 import { softDelEvent } from "./endpoints/events/[eventId]/delete";
 import { signForEvent } from "./endpoints/events/[eventId]/signForEvent";
 
@@ -74,9 +75,11 @@ const verifyTokenMiddleware = async (
 const runServer = () => {
     const PORT = process.env.PORT as string | 3000;
     const app = express();
+    const swaggerDocument = require("./swagger.json");
 
     app.use(json());
     app.use("/user", verifyTokenMiddleware);
+    app.use("/openapi", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
     app.use(morgan("dev"));
 
     app.use("/events", verifyTokenMiddleware);
@@ -102,6 +105,8 @@ const runServer = () => {
 
     app.post("/events/create", createEvent);
     app.put("/events/:eventId/update", updateEvent);
+
+    app.get("/openapi", swaggerUi.setup(swaggerDocument));
     app.put("/events/:eventId/startEvent", startEvent);
 
     app.get("/events/:eventId/attendance", eventWorkersAttendance);
