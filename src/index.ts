@@ -20,6 +20,8 @@ import { getActiveEvent } from "./endpoints/events/active";
 import { createEvent } from "./endpoints/events/create";
 import { updateEvent } from "./endpoints/events/[eventId]/update";
 import { getNearbyEvents } from "./endpoints/events/nearby";
+import { startEvent } from "./endpoints/events/[eventId]/startEvent";
+import { eventWorkersAttendance } from "./endpoints/events/attendance";
 const swaggerUi = require("swagger-ui-express");
 
 const prisma = new PrismaClient();
@@ -102,6 +104,9 @@ const runServer = () => {
     app.put("/events/:eventId/update", updateEvent);
 
     app.get("/openapi", swaggerUi.setup(swaggerDocument));
+    app.put("/events/:eventId/startEvent", startEvent);
+
+    app.get("/events/:eventId/attendance", eventWorkersAttendance);
 
     app.listen(PORT, () => {
         console.log(`App listening on  http://localhost:${PORT}`);
