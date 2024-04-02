@@ -1,7 +1,7 @@
 import { EventStatus, PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
-import { ThrowInternalServerError } from "../../errorResponses/internalServer500";
-import { ThrowNotFound } from "../../errorResponses/notFound404";
+import { ThrowInternalServerError } from "../../../errorResponses/internalServer500";
+import { ThrowNotFound } from "../../../errorResponses/notFound404";
 
 const prisma = new PrismaClient();
 
