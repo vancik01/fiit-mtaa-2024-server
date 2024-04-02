@@ -20,6 +20,7 @@ import { getActiveEvent } from "./endpoints/events/active";
 import { createEvent } from "./endpoints/events/create";
 import { updateEvent } from "./endpoints/events/[eventId]/update";
 import { getNearbyEvents } from "./endpoints/events/nearby";
+const swaggerUi = require("swagger-ui-express");
 
 const prisma = new PrismaClient();
 
@@ -70,9 +71,11 @@ const verifyTokenMiddleware = async (
 const runServer = () => {
     const PORT = process.env.PORT as string | 3000;
     const app = express();
+    const swaggerDocument = require("./swagger.json");
 
     app.use(json());
     app.use("/user", verifyTokenMiddleware);
+    app.use("/openapi", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
     app.use(morgan("dev"));
 
     app.use("/events", verifyTokenMiddleware);
@@ -97,6 +100,8 @@ const runServer = () => {
 
     app.post("/events/create", createEvent);
     app.put("/events/:eventId/update", updateEvent);
+
+    app.get("/openapi", swaggerUi.setup(swaggerDocument));
 
     app.listen(PORT, () => {
         console.log(`App listening on  http://localhost:${PORT}`);
