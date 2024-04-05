@@ -5,7 +5,6 @@ import { ThrowInternalServerError } from "../../../errorResponses/internalServer
 import { UserDecodedData } from "../../../../@types/jwtToken";
 import { ThrowConflict } from "../../../errorResponses/conflict409";
 import { ThrowForbidden } from "../../../errorResponses/forbidden403";
-import { tr } from "@faker-js/faker";
 
 const prisma = new PrismaClient();
 
@@ -63,8 +62,6 @@ export const signForEvent = async (req: Request, res: Response) => {
                 id: eventId
             }
         });
-
-        console.log(eventAssCount);
 
         if (eventAssCount?._count.EventAssignment === event.capacity) {
             return ThrowConflict(res);

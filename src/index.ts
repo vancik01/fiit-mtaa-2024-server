@@ -25,6 +25,8 @@ import { eventWorkersAttendance } from "./endpoints/events/[eventId]/attendance"
 const swaggerUi = require("swagger-ui-express");
 import { softDelEvent } from "./endpoints/events/[eventId]/delete";
 import { signForEvent } from "./endpoints/events/[eventId]/signForEvent";
+import { getMyEvents } from "./endpoints/events/my";
+import { signOffEvent } from "./endpoints/events/[eventId]/signOffEvent";
 import { getEventWorkers } from "./endpoints/events/[eventId]/workers";
 
 const prisma = new PrismaClient();
@@ -101,6 +103,8 @@ const runServer = () => {
     app.get("/events/latest", getLatestEvents);
     app.get("/events/nearby", getNearbyEvents);
     app.get("/events/active", getActiveEvent);
+    app.get("/events/my", getMyEvents);
+
     app.get("/events/:eventId", getEventDetail);
     app.delete("/events/:eventId", softDelEvent);
 
@@ -114,6 +118,7 @@ const runServer = () => {
 
     app.get("/events/:eventId/attendance", eventWorkersAttendance);
     app.post("/events/:eventId/signFor", signForEvent);
+    app.post("/events/:eventId/signOff", signOffEvent);
 
     app.listen(PORT, () => {
         console.log(`App listening on  http://localhost:${PORT}`);
