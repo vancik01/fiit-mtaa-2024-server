@@ -1,12 +1,14 @@
-import { PrismaClient } from "@prisma/client";
+import { EventAssignmentStatus, PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 import { ThrowNotFound } from "../../../errorResponses/notFound404";
 import { ThrowInternalServerError } from "../../../errorResponses/internalServer500";
+import { UserDecodedData } from "../../../../@types/jwtToken";
 
 const prisma = new PrismaClient();
 
 export const getEventDetail = async (req: Request, res: Response) => {
     const { eventId } = req.params;
+    const userData = req.user as UserDecodedData;
 
     try {
         const event = await prisma.event.findUnique({
@@ -37,14 +39,24 @@ export const getEventDetail = async (req: Request, res: Response) => {
                         }
                     }
                 },
+                EventAssignment: {
+                    where: {
+                        userId: userData.id
+                    }
+                },
                 _count: {
                     select: {
-                        EventAssignment: true
+                        EventAssignment: {
+                            where: {
+                                assignmentStatus: EventAssignmentStatus.ACTIVE
+                            }
+                        }
                     }
                 },
                 User: {
                     select: {
-                        name: true
+                        name: true,
+                        id: true
                     }
                 }
             },
@@ -53,11 +65,26 @@ export const getEventDetail = async (req: Request, res: Response) => {
             }
         });
 
+        console.log(event?.EventAssignment);
+
         if (!event) {
             return ThrowNotFound(res);
         }
+        const isOwnedByUser = event.User.id === userData.id;
+        const isUserSignedIn = event.EventAssignment.length === 1;
 
-        return res.status(200).json(event);
+        return res.status(200).json({
+            ...event,
+            ...{
+                User: {
+                    ...event.User,
+                    id: undefined
+                }
+            },
+            EventAssignment: undefined,
+            isOwnedByUser,
+            isUserSignedIn
+        });
     } catch (error) {
         return ThrowInternalServerError(res);
     }

@@ -1,14 +1,12 @@
-import { AccountType, PrismaClient, SallaryType } from "@prisma/client";
+import { PrismaClient, SallaryType } from "@prisma/client";
 import { Request, Response } from "express";
-import moment from "moment";
 import * as Yup from "yup";
-import { CreateEventData, UpdateEventData } from "../../../../@types/event";
+import { UpdateEventData } from "../../../../@types/event";
 import { UserDecodedData } from "../../../../@types/jwtToken";
 import { ThrowForbidden } from "../../../errorResponses/forbidden403";
 import { ThrowBadRequest } from "../../../errorResponses/badRequest400";
 import { ThrowInternalServerError } from "../../../errorResponses/internalServer500";
 import { ThrowNotFound } from "../../../errorResponses/notFound404";
-import { getArrayDifference } from "../../../../helpers/arrayDifference";
 
 const prisma = new PrismaClient();
 

@@ -25,6 +25,7 @@ import { eventWorkersAttendance } from "./endpoints/events/[eventId]/attendance"
 const swaggerUi = require("swagger-ui-express");
 import { softDelEvent } from "./endpoints/events/[eventId]/delete";
 import { signForEvent } from "./endpoints/events/[eventId]/signForEvent";
+import { getEventWorkers } from "./endpoints/events/[eventId]/workers";
 
 const prisma = new PrismaClient();
 
@@ -105,6 +106,8 @@ const runServer = () => {
 
     app.post("/events/create", createEvent);
     app.put("/events/:eventId/update", updateEvent);
+
+    app.get("/events/:eventId/workers", getEventWorkers);
 
     app.get("/openapi", swaggerUi.setup(swaggerDocument));
     app.put("/events/:eventId/startEvent", startEvent);

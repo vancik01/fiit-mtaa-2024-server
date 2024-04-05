@@ -31,6 +31,7 @@ Table Event {
   id String [pk]
   name String [not null]
   createdAt DateTime [default: `now()`, not null]
+  deletedAt DateTime
   User User [not null]
   happeningAt DateTime [not null]
   description String
@@ -56,6 +57,7 @@ Table Event {
 Table EventAssignment {
   id String [pk]
   createdAt DateTime [default: `now()`, not null]
+  signedOffAt DateTime
   user User [not null]
   userId String [not null]
   event Event [not null]
