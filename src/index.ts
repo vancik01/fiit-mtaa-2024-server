@@ -28,6 +28,7 @@ import { signForEvent } from "./endpoints/events/[eventId]/signForEvent";
 import { getMyEvents } from "./endpoints/events/my";
 import { signOffEvent } from "./endpoints/events/[eventId]/signOffEvent";
 import { getEventWorkers } from "./endpoints/events/[eventId]/workers";
+import { getAssignedCategories } from "./endpoints/events/categories";
 
 const prisma = new PrismaClient();
 
@@ -103,6 +104,7 @@ const runServer = () => {
     app.get("/events/nearby", getNearbyEvents);
     app.get("/events/active", getActiveEvent);
     app.get("/events/my", getMyEvents);
+    app.get("/events/categories", getAssignedCategories);
 
     app.get("/events/:eventId", getEventDetail);
     app.delete("/events/:eventId", softDelEvent);
