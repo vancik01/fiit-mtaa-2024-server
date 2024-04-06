@@ -26,8 +26,6 @@ export const getNearbyEvents = async (req: Request, res: Response) => {
         ORDER BY "distance"
         LIMIT 5;`;
 
-    console.log(eventIds);
-
     try {
         const events = await prisma.event.findMany({
             take: 5,

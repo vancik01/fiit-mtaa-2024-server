@@ -55,8 +55,6 @@ export const getEventWorkers = async (req: Request, res: Response) => {
             }
         });
 
-        console.log(workers);
-
         return res.status(200).json({ workers: workers });
     } catch (error) {
         return ThrowInternalServerError(res);

@@ -41,7 +41,8 @@ export const getEventDetail = async (req: Request, res: Response) => {
                 },
                 EventAssignment: {
                     where: {
-                        userId: userData.id
+                        userId: userData.id,
+                        assignmentStatus: EventAssignmentStatus.ACTIVE
                     }
                 },
                 _count: {
@@ -64,8 +65,6 @@ export const getEventDetail = async (req: Request, res: Response) => {
                 id: eventId
             }
         });
-
-        console.log(event?.EventAssignment);
 
         if (!event) {
             return ThrowNotFound(res);

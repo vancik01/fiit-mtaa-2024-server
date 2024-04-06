@@ -1,4 +1,9 @@
-import { AccountType, EventStatus, PrismaClient } from "@prisma/client";
+import {
+    AccountType,
+    EventAssignmentStatus,
+    EventStatus,
+    PrismaClient
+} from "@prisma/client";
 import { Request, Response } from "express";
 import { ThrowNotFound } from "../../../errorResponses/notFound404";
 import { ThrowInternalServerError } from "../../../errorResponses/internalServer500";
@@ -38,6 +43,7 @@ export const signForEvent = async (req: Request, res: Response) => {
                 status: EventStatus.CREATED,
                 EventAssignment: {
                     some: {
+                        assignmentStatus: EventAssignmentStatus.ACTIVE,
                         user: {
                             id: userData.id
                         }

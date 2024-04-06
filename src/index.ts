@@ -37,7 +37,6 @@ const verifyTokenMiddleware = async (
     next: NextFunction
 ) => {
     const token = req.headers.authorization?.split(" ")[1]; // Extract the token from the Bearer scheme
-    console.log("token", token);
     if (!token) {
         return res
             .status(403)
@@ -122,7 +121,6 @@ const runServer = () => {
 
     app.listen(PORT, () => {
         console.log(`App listening on  http://localhost:${PORT}`);
-        console.log("port", process.env.PORT);
     });
 };
 
