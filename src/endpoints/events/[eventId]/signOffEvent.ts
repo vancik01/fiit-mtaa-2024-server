@@ -16,8 +16,6 @@ export const signOffEvent = async (req: Request, res: Response) => {
     const { eventId } = req.params;
     const userData = req.user as UserDecodedData;
 
-    console.log(userData);
-
     try {
         if (userData.role == AccountType.ORGANISER) {
             return ThrowForbidden(res);
@@ -38,24 +36,24 @@ export const signOffEvent = async (req: Request, res: Response) => {
             }
         });
 
-        if (alreadyAssigned) {
-            await prisma.eventAssignment.updateMany({
-                where: {
-                    AND: [
-                        { assignmentStatus: EventAssignmentStatus.ACTIVE },
-                        { eventId: eventId },
-                        { userId: userData.id }
-                    ]
-                },
-                data: {
-                    assignmentStatus: EventAssignmentStatus.SIGNED_OFF
-                }
-            });
-
-            return res.status(200).send();
-        } else {
+        if (!alreadyAssigned) {
             return ThrowNotFound(res);
         }
+
+        await prisma.eventAssignment.updateMany({
+            where: {
+                AND: [
+                    { assignmentStatus: EventAssignmentStatus.ACTIVE },
+                    { eventId: eventId },
+                    { userId: userData.id }
+                ]
+            },
+            data: {
+                assignmentStatus: EventAssignmentStatus.SIGNED_OFF
+            }
+        });
+
+        return res.status(200).send();
     } catch (error) {
         return ThrowInternalServerError(res);
     }
