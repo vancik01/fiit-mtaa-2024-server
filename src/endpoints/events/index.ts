@@ -1,14 +1,43 @@
-import { PrismaClient, Prisma, SallaryType, EventStatus } from "@prisma/client";
+import { PrismaClient, SallaryType } from "@prisma/client";
 import { Request, Response } from "express";
 import { ThrowInternalServerError } from "../../errorResponses/internalServer500";
 
 const prisma = new PrismaClient();
 
+type DistanceResponse = {
+    id: string;
+};
+
 export const getEvents = async (req: Request, res: Response) => {
-    const { limit, categoryID, priceType, distance } = req.query;
+    const { limit, categoryID, priceType, distance, lat, lon } = req.query;
+
+    var eventIds: Array<DistanceResponse> = [];
+
+    if (distance && lat && lon) {
+        eventIds = await prisma.$queryRaw`
+        SELECT *
+        FROM (SELECT e.id,
+                    6371 * acos(
+                            cos(radians(${parseFloat(lat.toString())}))
+                                * cos(radians("locationLat"))
+                                * cos(radians("locationLon") - radians(${parseFloat(
+                                    lon.toString()
+                                )}))
+                                + sin(radians(${parseFloat(
+                                    lat.toString()
+                                )})) * sin(radians("locationLat"))
+                            ) AS distance
+            FROM "Event" e
+                    JOIN "Location" l ON l.id = e."locationId"
+            WHERE status = 'CREATED') AS events
+        WHERE events.distance <= ${parseFloat(distance.toString())}
+        ORDER BY events.distance;`;
+    }
 
     try {
-        let prismaQuery: Prisma.EventFindManyArgs = {
+        // TODO: support multi category
+
+        const events = await prisma.event.findMany({
             select: {
                 id: true,
                 name: true,
@@ -38,60 +67,6 @@ export const getEvents = async (req: Request, res: Response) => {
                     }
                 }
             },
-            orderBy: { createdAt: "desc" },
-            where: {
-                status: EventStatus.CREATED
-            }
-        };
-
-        if (limit) {
-            prismaQuery.take = parseInt(limit.toString());
-        }
-
-        // TODO: fix this and support multi category query
-        if (categoryID) {
-            prismaQuery.where = {
-                ...prismaQuery.where,
-                EventCategoryRelation: {
-                    some: {
-                    some: {
-                        eventCategoryId: {
-                            equals: categoryID.toString()
-                        }
-                    }
-                }
-            };
-        }
-
-        if (priceType) {
-            prismaQuery.where = {
-                ...prismaQuery.where,
-                sallaryType:
-                    priceType.toString() == "MONEY"
-                        ? SallaryType.MONEY
-                        : SallaryType.GOODS
-            };
-        }
-*/
-        // TODO: distance filter
-
-        const events = await prisma.event.findMany({
-            select: {
-                id: true,
-                name: true,
-                happeningAt: true,
-                thumbnailURL: true,
-                Location: true,
-                capacity: true,
-                sallaryType: true,
-                toolingRequired: true,
-                toolingProvided: true,
-                status: true,
-
-                sallaryAmount: true,
-                sallaryProductName: true,
-                sallaryUnit: true
-            },
             where: {
                 status: "CREATED",
                 ...(priceType
@@ -110,6 +85,13 @@ export const getEvents = async (req: Request, res: Response) => {
                                       equals: categoryID.toString()
                                   }
                               }
+                          }
+                      }
+                    : undefined),
+                ...(eventIds.length != 0
+                    ? {
+                          id: {
+                              in: eventIds.map((e) => e.id)
                           }
                       }
                     : undefined)

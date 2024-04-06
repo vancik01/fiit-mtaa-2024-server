@@ -16,8 +16,6 @@ export const signOffEvent = async (req: Request, res: Response) => {
     const { eventId } = req.params;
     const userData = req.user as UserDecodedData;
 
-    console.log(userData);
-
     try {
         if (userData.role == AccountType.ORGANISER) {
             return ThrowForbidden(res);

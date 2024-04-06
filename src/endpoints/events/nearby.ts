@@ -2,7 +2,6 @@ import { EventStatus, PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 import { ThrowNotFound } from "../../errorResponses/notFound404";
 import { ThrowInternalServerError } from "../../errorResponses/internalServer500";
-import { Coordinates } from "../../../helpers/distance";
 
 const prisma = new PrismaClient();
 
@@ -83,7 +82,6 @@ export const getNearbyEvents = async (req: Request, res: Response) => {
 
         return res.status(200).send({ events: events });
     } catch (error) {
-        console.log(error);
         return ThrowInternalServerError(res);
     }
 };
