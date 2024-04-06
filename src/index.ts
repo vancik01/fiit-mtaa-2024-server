@@ -29,6 +29,7 @@ import { getMyEvents } from "./endpoints/events/my";
 import { signOffEvent } from "./endpoints/events/[eventId]/signOffEvent";
 import { getEventWorkers } from "./endpoints/events/[eventId]/workers";
 import { getAssignedCategories } from "./endpoints/events/categories";
+import { endEvent } from "./endpoints/events/[eventId]/endEvent";
 
 const prisma = new PrismaClient();
 
@@ -116,6 +117,7 @@ const runServer = () => {
 
     app.get("/openapi", swaggerUi.setup(swaggerDocument));
     app.put("/events/:eventId/startEvent", startEvent);
+    app.post("/events/:eventId/endEvent", endEvent);
 
     app.get("/events/:eventId/attendance", eventWorkersAttendance);
     app.post("/events/:eventId/signFor", signForEvent);
