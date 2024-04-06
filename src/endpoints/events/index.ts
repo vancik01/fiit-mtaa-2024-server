@@ -54,6 +54,7 @@ export const getEvents = async (req: Request, res: Response) => {
                 ...prismaQuery.where,
                 EventCategoryRelation: {
                     some: {
+                    some: {
                         eventCategoryId: {
                             equals: categoryID.toString()
                         }
@@ -71,10 +72,51 @@ export const getEvents = async (req: Request, res: Response) => {
                         : SallaryType.GOODS
             };
         }
-
+*/
         // TODO: distance filter
 
-        const events = await prisma.event.findMany(prismaQuery);
+        const events = await prisma.event.findMany({
+            select: {
+                id: true,
+                name: true,
+                happeningAt: true,
+                thumbnailURL: true,
+                Location: true,
+                capacity: true,
+                sallaryType: true,
+                toolingRequired: true,
+                toolingProvided: true,
+                status: true,
+
+                sallaryAmount: true,
+                sallaryProductName: true,
+                sallaryUnit: true
+            },
+            where: {
+                status: "CREATED",
+                ...(priceType
+                    ? {
+                          sallaryType:
+                              priceType.toString() == "MONEY"
+                                  ? SallaryType.MONEY
+                                  : SallaryType.GOODS
+                      }
+                    : undefined),
+                ...(categoryID
+                    ? {
+                          EventCategoryRelation: {
+                              some: {
+                                  eventCategoryId: {
+                                      equals: categoryID.toString()
+                                  }
+                              }
+                          }
+                      }
+                    : undefined)
+            },
+            take: limit ? parseInt(limit.toString()) : undefined,
+            orderBy: { createdAt: "desc" }
+        });
 
         return res.status(200).json({ events: events });
     } catch (error) {
