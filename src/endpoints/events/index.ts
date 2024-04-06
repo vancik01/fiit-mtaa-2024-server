@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma, SallaryType } from "@prisma/client";
+import { PrismaClient, Prisma, SallaryType, EventStatus } from "@prisma/client";
 import { Request, Response } from "express";
 import { ThrowInternalServerError } from "../../errorResponses/internalServer500";
 
@@ -15,17 +15,33 @@ export const getEvents = async (req: Request, res: Response) => {
                 happeningAt: true,
                 thumbnailURL: true,
                 Location: true,
-                capacity: true,
                 sallaryType: true,
-                toolingRequired: true,
-                toolingProvided: true,
                 status: true,
-
                 sallaryAmount: true,
                 sallaryProductName: true,
-                sallaryUnit: true
+                sallaryUnit: true,
+                EventCategoryRelation: {
+                    select: {
+                        EventCategory: {
+                            select: {
+                                id: true,
+                                name: true,
+                                icon: true,
+                                colorVariant: true
+                            }
+                        }
+                    }
+                },
+                User: {
+                    select: {
+                        name: true
+                    }
+                }
             },
-            orderBy: { createdAt: "desc" }
+            orderBy: { createdAt: "desc" },
+            where: {
+                status: EventStatus.CREATED
+            }
         };
 
         if (limit) {
@@ -37,7 +53,7 @@ export const getEvents = async (req: Request, res: Response) => {
             prismaQuery.where = {
                 ...prismaQuery.where,
                 EventCategoryRelation: {
-                    every: {
+                    some: {
                         eventCategoryId: {
                             equals: categoryID.toString()
                         }
