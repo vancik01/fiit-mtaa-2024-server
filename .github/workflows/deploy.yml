@@ -34,6 +34,7 @@ jobs:
             echo "PORT=3000" >> .env
             echo "DATABASE_PORT=5432" >> .env
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+            echo "DATABASE_URL=postgresql://postgres:${DB_PASSWORD}@localhost:${DATABASE_PORT}/postgres?connect_timeout=300" >> .env
             
           EOF
 
