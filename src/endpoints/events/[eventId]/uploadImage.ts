@@ -41,6 +41,7 @@ export const uploadEventImage = async (req: Request, res: Response) => {
                 return;
             });
     } catch (error) {
+        console.log(error);
         return ThrowInternalServerError(res);
     }
 };
