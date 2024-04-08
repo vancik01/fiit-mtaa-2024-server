@@ -87,10 +87,10 @@ const runServer = () => {
     app.use(json());
     app.use(cors());
     app.use("/user", verifyTokenMiddleware);
+    app.use("/events", verifyTokenMiddleware);
+
     app.use("/openapi", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
     app.use(morgan("dev"));
-
-    app.use("/events", verifyTokenMiddleware);
 
     app.get("/hello", async (req, res) => {
         const v = await prisma.$queryRawUnsafe("select version();");
