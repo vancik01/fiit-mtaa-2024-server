@@ -18,7 +18,7 @@ services:
     depends_on:
       - db
     environment:
-      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_URL=postgresql://postgres:${DB_PASSWORD}@db:5432/postgres?connect_timeout=300
     networks:
           - my_network
     
