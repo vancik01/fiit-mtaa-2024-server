@@ -3,6 +3,7 @@ WORKDIR /
 COPY package*.json ./  
 COPY tsconfig.json ./  
 COPY .env ./  
+COPY /src/swagger.json ./dist/src/
 RUN npm install
 COPY . .  
 
