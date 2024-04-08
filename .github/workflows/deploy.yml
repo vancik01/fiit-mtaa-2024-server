@@ -1,47 +1,48 @@
 name: Deploy to Droplet
 
 on:
-  push:
-    branches:
-      - main # Or your deployment branch
+    push:
+        branches:
+            - main # Or your deployment branch
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+    deploy:
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
 
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.SSH_KEY }}
+            - name: Setup SSH
+              uses: webfactory/ssh-agent@v0.5.3
+              with:
+                  ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      - name: Prepare Deployment Environment
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
-            cd /home/my-app/fiit-mtaa-2024-server/
-            git pull
-          EOF
+            - name: Prepare Deployment Environment
+              run: |
+                  ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+                    cd /home/my-app/fiit-mtaa-2024-server/
+                    git pull
+                  EOF
 
-      - name: Create .env file on Droplet
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
-          cd /home/my-app/fiit-mtaa-2024-server/
-            echo "Creating .env file..."
-            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
-            echo "PORT=3000" >> .env
-            echo "DATABASE_PORT=5432" >> .env
-            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-            echo "DATABASE_URL=postgresql://postgres:${DB_PASSWORD}@localhost:${DATABASE_PORT}/postgres?connect_timeout=300" >> .env
-            
-          EOF
+            - name: Create .env file on Droplet
+              run: |
+                  ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+                  cd /home/my-app/fiit-mtaa-2024-server/
+                    echo "Creating .env file..."
+                    echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
+                    echo "PORT=3000" >> .env
+                    echo "DATABASE_PORT=5432" >> .env
+                    echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+                    echo "DATABASE_URL=postgresql://postgres:${DB_PASSWORD}@localhost:${DATABASE_PORT}/postgres?connect_timeout=300" >> .env
+                    echo "BUCKET_NAME=${{ secrets.BUCKET_NAME }}" >> .env
+                    
+                  EOF
 
-      - name: Deploy with Docker Compose
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
-            cd /home/my-app/fiit-mtaa-2024-server/
-            docker compose down
-            docker compose up --build -d
-          EOF
+            - name: Deploy with Docker Compose
+              run: |
+                  ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+                    cd /home/my-app/fiit-mtaa-2024-server/
+                    docker compose down
+                    docker compose up --build -d
+                  EOF
