@@ -17,6 +17,9 @@ import { getEventDetail } from "./endpoints/events/[eventId]";
 import { getLatestEvents } from "./endpoints/events/latest";
 import { getEvents } from "./endpoints/events";
 import { getActiveEvent } from "./endpoints/events/active";
+import { uploadEventImage } from "./endpoints/events/[eventId]/uploadImage";
+const multer = require("multer");
+const cors = require("cors");
 import { createEvent } from "./endpoints/events/create";
 import { updateEvent } from "./endpoints/events/[eventId]/update";
 import { getNearbyEvents } from "./endpoints/events/nearby";
@@ -82,6 +85,7 @@ const runServer = () => {
     const swaggerDocument = require("./swagger.json");
 
     app.use(json());
+    app.use(cors());
     app.use("/user", verifyTokenMiddleware);
     app.use("/openapi", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
     app.use(morgan("dev"));
@@ -108,6 +112,12 @@ const runServer = () => {
     app.get("/events/categories", getAssignedCategories);
 
     app.get("/events/:eventId", getEventDetail);
+
+    app.post(
+        "/events/:eventId/uploadImage",
+        multer().single("image"),
+        uploadEventImage
+    );
     app.delete("/events/:eventId", softDelEvent);
 
     app.post("/events/create", createEvent);
