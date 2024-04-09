@@ -17,6 +17,9 @@ import { getEventDetail } from "./endpoints/events/[eventId]";
 import { getLatestEvents } from "./endpoints/events/latest";
 import { getEvents } from "./endpoints/events";
 import { getActiveEvent } from "./endpoints/events/active";
+import { uploadEventImage } from "./endpoints/events/[eventId]/uploadImage";
+const multer = require("multer");
+const cors = require("cors");
 import { createEvent } from "./endpoints/events/create";
 import { updateEvent } from "./endpoints/events/[eventId]/update";
 import { getNearbyEvents } from "./endpoints/events/nearby";
@@ -83,11 +86,12 @@ const runServer = () => {
     const swaggerDocument = require("./swagger.json");
 
     app.use(json());
+    app.use(cors());
     app.use("/user", verifyTokenMiddleware);
+    app.use("/events", verifyTokenMiddleware);
+
     app.use("/openapi", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
     app.use(morgan("dev"));
-
-    app.use("/events", verifyTokenMiddleware);
 
     app.get("/hello", async (req, res) => {
         const v = await prisma.$queryRawUnsafe("select version();");
@@ -110,6 +114,12 @@ const runServer = () => {
     app.get("/events/onMap", getOnMap);
 
     app.get("/events/:eventId", getEventDetail);
+
+    app.post(
+        "/events/:eventId/uploadImage",
+        multer().single("image"),
+        uploadEventImage
+    );
     app.delete("/events/:eventId", softDelEvent);
 
     app.post("/events/create", createEvent);
