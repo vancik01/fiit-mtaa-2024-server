@@ -98,6 +98,21 @@ function slugify(title: string) {
         .toLowerCase(); // Convert to lowercase
 }
 
+function generateNearbyCoordinate(
+    centerLat: number,
+    centerLon: number,
+    radius = 0.01
+) {
+    return {
+        latitude:
+            centerLat +
+            faker.number.float() * radius * (faker.datatype.boolean() ? 1 : -1),
+        longitude:
+            centerLon +
+            faker.number.float() * radius * (faker.datatype.boolean() ? 1 : -1)
+    };
+}
+
 async function main() {
     const fruitsAndVegetablesEmojis: {
         emoji: string;
@@ -160,13 +175,19 @@ async function main() {
     await prisma.location.createMany({
         data: Array(15)
             .fill("")
-            .map((_, i) => ({
-                name: faker.company.name(),
-                address: faker.location.streetAddress(),
-                city: faker.location.city(),
-                locationLat: faker.location.latitude({ max: 180, min: -180 }),
-                locationLon: faker.location.longitude({ max: 180, min: -180 })
-            }))
+            .map((_, i) => {
+                const { latitude, longitude } = generateNearbyCoordinate(
+                    48.934328,
+                    18.160032
+                );
+                return {
+                    name: faker.company.name(),
+                    address: faker.location.streetAddress(),
+                    city: faker.location.city(),
+                    locationLat: latitude,
+                    locationLon: longitude
+                };
+            })
     });
 
     const locations = await prisma.location.findMany({ select: { id: true } });
