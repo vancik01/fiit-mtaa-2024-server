@@ -30,6 +30,7 @@ import { signOffEvent } from "./endpoints/events/[eventId]/signOffEvent";
 import { getEventWorkers } from "./endpoints/events/[eventId]/workers";
 import { getAssignedCategories } from "./endpoints/events/categories";
 import { endEvent } from "./endpoints/events/[eventId]/endEvent";
+import { getOnMap } from "./endpoints/events/onMap";
 
 const prisma = new PrismaClient();
 
@@ -106,6 +107,7 @@ const runServer = () => {
     app.get("/events/active", getActiveEvent);
     app.get("/events/my", getMyEvents);
     app.get("/events/categories", getAssignedCategories);
+    app.get("/events/onMap", getOnMap);
 
     app.get("/events/:eventId", getEventDetail);
     app.delete("/events/:eventId", softDelEvent);
