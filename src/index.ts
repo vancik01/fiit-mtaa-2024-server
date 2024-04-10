@@ -34,6 +34,7 @@ import { getEventWorkers } from "./endpoints/events/[eventId]/workers";
 import { getAssignedCategories } from "./endpoints/events/categories";
 import { endEvent } from "./endpoints/events/[eventId]/endEvent";
 import { getOnMap } from "./endpoints/events/onMap";
+import { eventUpdateAttendance } from "./endpoints/events/[eventId]/updateAttendance";
 
 const prisma = new PrismaClient();
 
@@ -132,6 +133,7 @@ const runServer = () => {
     app.post("/events/:eventId/endEvent", endEvent);
 
     app.get("/events/:eventId/attendance", eventWorkersAttendance);
+    app.put("/events/:eventId/updateAttendance", eventUpdateAttendance);
     app.post("/events/:eventId/signFor", signForEvent);
     app.post("/events/:eventId/signOff", signOffEvent);
 

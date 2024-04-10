@@ -1,4 +1,4 @@
-import { HarmonogramItem, SallaryType } from "@prisma/client";
+import { EventPresenceStatus, SallaryType } from "@prisma/client";
 
 /**
  * Request
@@ -53,4 +53,11 @@ export interface CreateHarmonogramItemData {
     description: string;
     from: string;
     to: string;
+}
+
+export interface AttendanceItemData {
+    userID: string;
+    presenceStatus: EventPresenceStatus;
+    arrivedAt: string;
+    leftAt: string;
 }
