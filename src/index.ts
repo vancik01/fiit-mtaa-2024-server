@@ -116,11 +116,7 @@ const runServer = () => {
 
     app.get("/events/:eventId", getEventDetail);
 
-    app.post(
-        "/events/:eventId/uploadImage",
-        multer().single("image"),
-        uploadEventImage
-    );
+    app.post("/events/uploadImage", multer().single("image"), uploadEventImage);
     app.delete("/events/:eventId", softDelEvent);
 
     app.post("/events/create", createEvent);

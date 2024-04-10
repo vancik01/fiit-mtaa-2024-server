@@ -65,6 +65,7 @@ Table EventAssignment {
   arrivedAt DateTime
   leftAt DateTime
   presenceStatus EventPresenceStatus [not null, default: 'NOT_PRESENT']
+  hoursWorked Int
 }
 
 Table EventCategory {

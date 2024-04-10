@@ -10,8 +10,6 @@ import { ThrowBadRequest } from "../../../errorResponses/badRequest400";
 const prisma = new PrismaClient();
 
 export const uploadEventImage = async (req: Request, res: Response) => {
-    const { eventId } = req.params;
-
     const storage = new Storage({
         projectId: "mtaa-2024",
         keyFilename: "google-cloud-key.json"

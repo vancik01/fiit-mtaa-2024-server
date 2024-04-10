@@ -120,6 +120,7 @@ model EventAssignment {
   arrivedAt        DateTime?
   leftAt           DateTime?
   presenceStatus   EventPresenceStatus   @default(NOT_PRESENT)
+  hoursWorked      Int?
 }
 
 model EventCategory {

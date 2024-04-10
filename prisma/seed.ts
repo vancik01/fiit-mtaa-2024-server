@@ -2,6 +2,8 @@ import {
     AccountType,
     ColorVariant,
     Event,
+    EventAssignmentStatus,
+    EventPresenceStatus,
     EventStatus,
     PrismaClient,
     SallaryType,
@@ -30,11 +32,17 @@ const getRandomimage = () =>
         max: 1000
     })}/1280/720`;
 
-const getRandomUser = (type: AccountType, n: number, email?: string) => {
+const getRandomUser = (
+    type: AccountType,
+    n: number,
+    email?: string,
+    id?: string
+) => {
     return Array(n)
         .fill("")
         .map((_, i) => {
             return {
+                id: id ? id : undefined,
                 email: email ? email : faker.internet.email(),
                 name: faker.person.fullName(),
                 phoneNumber: faker.phone.number(),
@@ -45,15 +53,18 @@ const getRandomUser = (type: AccountType, n: number, email?: string) => {
         });
 };
 
-const getRandomEventData = () => {
+const getRandomEventData = (capacity?: number, id?: string) => {
     const sallaryType = faker.datatype.boolean()
         ? SallaryType.GOODS
         : SallaryType.MONEY;
 
     const ret = {
-        capacity: faker.number.int({ min: 5, max: 10 }),
+        id: id ? id : undefined,
+        capacity: capacity ? capacity : faker.number.int({ min: 5, max: 10 }),
         description: faker.commerce.productDescription(),
-        happeningAt: faker.date.future(),
+        happeningAt: moment(faker.date.soon())
+            .set("hour", faker.number.int({ min: 6, max: 10 }))
+            .toDate(),
         name: faker.commerce.productName(),
         sallaryType: sallaryType,
         sallaryAmount:
@@ -165,9 +176,9 @@ async function main() {
 
     await prisma.user.createMany({
         data: [
-            ...getRandomUser("ORGANISER", 1, "admin1@grabit.sk"),
-            ...getRandomUser("ORGANISER", 1, "admin2@grabit.sk"),
-            ...getRandomUser("ORGANISER", 1, "admin3@grabit.sk")
+            ...getRandomUser("ORGANISER", 1, "admin1@grabit.sk", "admin1"),
+            ...getRandomUser("ORGANISER", 1, "admin2@grabit.sk", "admin2"),
+            ...getRandomUser("ORGANISER", 1, "admin3@grabit.sk", "admin3")
         ]
     });
     const adminUsers = await prisma.user.findMany({ select: { id: true } });
@@ -269,7 +280,12 @@ async function main() {
     });
 
     const workerId = await prisma.user.create({
-        data: getRandomUser("HARVESTER", 1, "worker1@grabit.sk")[0],
+        data: getRandomUser(
+            "HARVESTER",
+            1,
+            "worker1@grabit.sk",
+            "harvester1"
+        )[0],
         select: {
             id: true
         }
@@ -279,7 +295,11 @@ async function main() {
         data: {
             userId: adminUsers[0].id,
             locationId: locations[0].id,
-            ...{ ...getRandomEventData(), status: "PROGRESS" }
+            ...{
+                ...getRandomEventData(15, "liveEventId"),
+                status: "PROGRESS",
+                happeningAt: moment().set("hours", 7).toDate()
+            }
         },
         select: {
             id: true,
@@ -299,7 +319,7 @@ async function main() {
 
     const userIds = await Promise.all(userPromises);
 
-    await Promise.all(
+    const assignments = await Promise.all(
         userIds.map((user) =>
             prisma.eventAssignment.create({
                 data: {
@@ -316,6 +336,45 @@ async function main() {
             userId: workerId.id
         }
     });
+
+    await Promise.all(
+        assignments.map((assignment) => {
+            const statusChangeTo = faker.helpers.arrayElement([
+                EventPresenceStatus.PRESENT,
+                EventPresenceStatus.LEFT,
+                EventPresenceStatus.DID_NOT_ARRIVE
+            ]);
+
+            const arrivedAt = [
+                EventPresenceStatus.PRESENT.toString(),
+                EventPresenceStatus.LEFT.toString()
+            ].includes(statusChangeTo)
+                ? moment(liveEvent.happeningAt)
+                      .add(faker.number.int({ min: 2, max: 45 }), "minutes")
+                      .toDate()
+                : undefined;
+
+            const leftAt = [EventPresenceStatus.LEFT.toString()].includes(
+                statusChangeTo
+            )
+                ? moment(arrivedAt)
+                      .add(faker.number.int({ min: 2, max: 12 }), "hours")
+                      .add(faker.number.int({ min: 2, max: 45 }), "minutes")
+                      .toDate()
+                : undefined;
+
+            return prisma.eventAssignment.update({
+                data: {
+                    presenceStatus: statusChangeTo,
+                    arrivedAt: arrivedAt,
+                    leftAt: leftAt
+                },
+                where: {
+                    id: assignment.id
+                }
+            });
+        })
+    );
 
     await Promise.all(
         Array(5)
