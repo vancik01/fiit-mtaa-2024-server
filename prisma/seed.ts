@@ -214,7 +214,7 @@ async function main() {
             { length: faker.number.int({ min: 0, max: event.capacity }) },
             async () =>
                 prisma.user.create({
-                    data: getRandomUser("ORGANISER", 1)[0],
+                    data: getRandomUser("HARVESTER", 1)[0],
                     select: { id: true }
                 })
         );
@@ -269,7 +269,7 @@ async function main() {
     });
 
     const workerId = await prisma.user.create({
-        data: getRandomUser("ORGANISER", 1, "worker1@grabit.sk")[0],
+        data: getRandomUser("HARVESTER", 1, "worker1@grabit.sk")[0],
         select: {
             id: true
         }
