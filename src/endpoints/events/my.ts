@@ -1,4 +1,8 @@
-import { AccountType, PrismaClient } from "@prisma/client";
+import {
+    AccountType,
+    EventAssignmentStatus,
+    PrismaClient
+} from "@prisma/client";
 import { Request, Response } from "express";
 import { ThrowNotFound } from "../../errorResponses/notFound404";
 import { ThrowInternalServerError } from "../../errorResponses/internalServer500";
@@ -48,7 +52,8 @@ export const getMyEvents = async (req: Request, res: Response) => {
                     : {
                           EventAssignment: {
                               some: {
-                                  userId: userData.id
+                                  userId: userData.id,
+                                  assignmentStatus: EventAssignmentStatus.ACTIVE
                               }
                           }
                       })
@@ -66,9 +71,9 @@ export const getMyEvents = async (req: Request, res: Response) => {
             ]
         });
 
-        if (events.length == 0) {
-            return ThrowNotFound(res);
-        }
+        // if (events.length == 0) {
+        //     return ThrowNotFound(res);
+        // }
 
         return res.status(200).send({ events: events });
     } catch (error) {

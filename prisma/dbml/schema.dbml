@@ -8,7 +8,6 @@ Table User {
   createdAt DateTime [default: `now()`, not null]
   password String [not null]
   name String [not null]
-  verificationToken String
   phoneNumber String
   type AccountType
   avatarURL String

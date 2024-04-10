@@ -101,7 +101,7 @@ function slugify(title: string) {
 function generateNearbyCoordinate(
     centerLat: number,
     centerLon: number,
-    radius = 0.01
+    radius = 0.1
 ) {
     return {
         latitude:
