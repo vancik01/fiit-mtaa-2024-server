@@ -35,6 +35,7 @@ import { eventUpdateAttendance } from "./endpoints/events/[eventId]/updateAttend
 import { ThrowNotFound } from "./errorResponses/notFound404";
 import { getLiveEventData } from "./endpoints/events/[eventId]/live";
 import { getEventReporting } from "./endpoints/events/[eventId]/reporting";
+import { deleteAccount } from "./endpoints/user/deleteAccount";
 
 const prisma = new PrismaClient();
 
@@ -106,6 +107,7 @@ const runServer = () => {
     app.get("/user/", getUser);
     app.put("/user/editAccount", editAccount);
     app.get("/user/verifyToken", verifyToken);
+    app.delete("/user", deleteAccount);
 
     app.get("/events", getEvents);
     app.get("/events/latest", getLatestEvents);
