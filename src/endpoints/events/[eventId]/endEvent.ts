@@ -64,13 +64,14 @@ export const endEvent = async (req: Request, res: Response) => {
         });
 
         await Promise.all(
-            assignmentIds.map((assignment) => {
+            assignmentIds.map(async (assignment) => {
                 const hours_worked =
                     moment(assignment.leftAt).diff(
                         moment(assignment.arrivedAt),
                         "hours"
                     ) + 1;
-                prisma.eventAssignment.update({
+                console.log(assignment, hours_worked);
+                await prisma.eventAssignment.update({
                     where: {
                         id: assignment.id
                     },

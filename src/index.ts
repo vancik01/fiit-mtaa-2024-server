@@ -1,9 +1,6 @@
 import express, { NextFunction, Request, Response, json } from "express";
-import passport from "passport";
-import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import "dotenv/config";
-import { AccountType, PrismaClient } from "@prisma/client";
-import md5 from "md5";
+import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 const morgan = require("morgan");
 import { login } from "./endpoints/login";
@@ -35,6 +32,9 @@ import { getAssignedCategories } from "./endpoints/events/categories";
 import { endEvent } from "./endpoints/events/[eventId]/endEvent";
 import { getOnMap } from "./endpoints/events/onMap";
 import { eventUpdateAttendance } from "./endpoints/events/[eventId]/updateAttendance";
+import { ThrowNotFound } from "./errorResponses/notFound404";
+import { getLiveEventData } from "./endpoints/events/[eventId]/live";
+import { getEventReporting } from "./endpoints/events/[eventId]/reporting";
 
 const prisma = new PrismaClient();
 
@@ -94,10 +94,11 @@ const runServer = () => {
     app.use("/openapi", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
     app.use(morgan("dev"));
 
-    app.get("/hello", async (req, res) => {
-        const v = await prisma.$queryRawUnsafe("select version();");
-        res.json({ response: v });
+    app.get("/", async (req, res) => {
+        res.json({ response: "Hello World!" });
     });
+
+    app.get("/openapi", swaggerUi.setup(swaggerDocument));
 
     app.post("/login", login);
     app.post("/createAccount", createAccount);
@@ -113,18 +114,14 @@ const runServer = () => {
     app.get("/events/my", getMyEvents);
     app.get("/events/categories", getAssignedCategories);
     app.get("/events/onMap", getOnMap);
+    app.post("/events/uploadImage", multer().single("image"), uploadEventImage);
+    app.post("/events/create", createEvent);
 
     app.get("/events/:eventId", getEventDetail);
-
-    app.post("/events/uploadImage", multer().single("image"), uploadEventImage);
     app.delete("/events/:eventId", softDelEvent);
-
-    app.post("/events/create", createEvent);
     app.put("/events/:eventId/update", updateEvent);
-
     app.get("/events/:eventId/workers", getEventWorkers);
 
-    app.get("/openapi", swaggerUi.setup(swaggerDocument));
     app.put("/events/:eventId/startEvent", startEvent);
     app.post("/events/:eventId/endEvent", endEvent);
 
@@ -132,6 +129,12 @@ const runServer = () => {
     app.put("/events/:eventId/updateAttendance", eventUpdateAttendance);
     app.post("/events/:eventId/signFor", signForEvent);
     app.post("/events/:eventId/signOff", signOffEvent);
+    app.get("/events/:eventId/live", getLiveEventData);
+    app.get("/events/:eventId/reporting", getEventReporting);
+
+    app.use((req, res, next) => {
+        return ThrowNotFound(res);
+    });
 
     app.listen(PORT, () => {
         console.log(`App listening on  http://localhost:${PORT}`);
