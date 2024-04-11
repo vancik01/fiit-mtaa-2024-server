@@ -1,5 +1,6 @@
 import {
     AccountType,
+    EventAssignmentStatus,
     EventPresenceStatus,
     EventStatus,
     PrismaClient
@@ -9,6 +10,7 @@ import { ThrowInternalServerError } from "../../../errorResponses/internalServer
 import { ThrowNotFound } from "../../../errorResponses/notFound404";
 import { UserDecodedData } from "../../../../@types/jwtToken";
 import { ThrowForbidden } from "../../../errorResponses/forbidden403";
+import moment from "moment";
 
 const prisma = new PrismaClient();
 
@@ -33,15 +35,52 @@ export const endEvent = async (req: Request, res: Response) => {
             return ThrowNotFound(res);
         }
 
+        const qwe = await prisma.eventAssignment.findMany({
+            where: {
+                eventId: eventId,
+                presenceStatus: {
+                    in: [EventPresenceStatus.LEFT]
+                }
+            }
+        });
+
         await prisma.eventAssignment.updateMany({
             where: {
-                eventId: eventId
+                eventId: eventId,
+                presenceStatus: EventPresenceStatus.PRESENT,
+                assignmentStatus: EventAssignmentStatus.ACTIVE
             },
             data: {
                 presenceStatus: EventPresenceStatus.LEFT,
                 leftAt: new Date()
             }
         });
+
+        const assignmentIds = await prisma.eventAssignment.findMany({
+            where: {
+                presenceStatus: EventPresenceStatus.LEFT,
+                assignmentStatus: EventAssignmentStatus.ACTIVE
+            }
+        });
+
+        await Promise.all(
+            assignmentIds.map(async (assignment) => {
+                const hours_worked =
+                    moment(assignment.leftAt).diff(
+                        moment(assignment.arrivedAt),
+                        "hours"
+                    ) + 1;
+                console.log(assignment, hours_worked);
+                await prisma.eventAssignment.update({
+                    where: {
+                        id: assignment.id
+                    },
+                    data: {
+                        hoursWorked: hours_worked > 0 ? hours_worked : 0
+                    }
+                });
+            })
+        );
 
         await prisma.event.update({
             where: {
@@ -51,8 +90,6 @@ export const endEvent = async (req: Request, res: Response) => {
                 status: EventStatus.ARCHIVED
             }
         });
-
-        // TODO: calculate insights for the company about sallary for each worker
 
         return res.status(200).send();
     } catch (error) {

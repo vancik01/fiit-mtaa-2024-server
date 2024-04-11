@@ -6,9 +6,9 @@ Table User {
   id String [pk]
   email String [unique, not null]
   createdAt DateTime [default: `now()`, not null]
+  deletedAt DateTime
   password String [not null]
   name String [not null]
-  verificationToken String
   phoneNumber String
   type AccountType
   avatarURL String
@@ -66,6 +66,7 @@ Table EventAssignment {
   arrivedAt DateTime
   leftAt DateTime
   presenceStatus EventPresenceStatus [not null, default: 'NOT_PRESENT']
+  hoursWorked Int
 }
 
 Table EventCategory {

@@ -65,7 +65,12 @@ export const signForEvent = async (req: Request, res: Response) => {
                 }
             },
             where: {
-                id: eventId
+                id: eventId,
+                EventAssignment: {
+                    every: {
+                        assignmentStatus: EventAssignmentStatus.ACTIVE
+                    }
+                }
             }
         });
 
