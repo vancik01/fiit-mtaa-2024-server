@@ -20,7 +20,8 @@ export const login = async (req: Request, res: Response) => {
     try {
         const user = await prisma.user.findFirst({
             where: {
-                email: email
+                email: email,
+                deletedAt: null
             },
             select: {
                 id: true,
