@@ -7,15 +7,7 @@ const prisma = new PrismaClient();
 export const getAssignedCategories = async (req: Request, res: Response) => {
     try {
         const categories = await prisma.eventCategory.findMany({
-            where: {
-                EventCategoryRelation: {
-                    some: {
-                        Event: {
-                            status: EventStatus.CREATED
-                        }
-                    }
-                }
-            },
+            where: {},
             include: {
                 _count: {
                     select: {
