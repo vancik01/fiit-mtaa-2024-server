@@ -16,7 +16,7 @@ export const deleteAccount = async (req: Request, res: Response) => {
             },
             data: {
                 avatarURL: "",
-                email: "unknown@grabit.sk",
+                email: `${userData.id}@grabit.sk`,
                 name: "Unknown user",
                 phoneNumber: "unknown",
                 deletedAt: new Date()
