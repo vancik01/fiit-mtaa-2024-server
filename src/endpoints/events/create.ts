@@ -5,9 +5,11 @@ import { ThrowInternalServerError } from "../../errorResponses/internalServer500
 import { CreateEventData } from "../../../@types/event";
 import { ThrowBadRequest } from "../../errorResponses/badRequest400";
 import { UserDecodedData } from "../../../@types/jwtToken";
-import moment from "moment";
 import * as Yup from "yup";
 import { ThrowForbidden } from "../../errorResponses/forbidden403";
+import { Client, Language } from "@googlemaps/google-maps-services-js";
+import { parseAddressComponents } from "../../../helpers/parsePlaces";
+import { getLocationDetail } from "../../../helpers/getLoactionDetail";
 
 const prisma = new PrismaClient();
 
@@ -23,13 +25,14 @@ export const createEvent = async (req: Request, res: Response) => {
         capacity: Yup.number().required().min(0),
         description: Yup.string().nullable(),
         happeningAt: Yup.date().required().min(new Date()),
-        location: Yup.object({
-            address: Yup.string().required(),
-            city: Yup.string().required(),
-            locationLat: Yup.number().required(),
-            locationLon: Yup.number().required(),
-            name: Yup.string().nullable()
-        }).required(),
+        // location: Yup.object({
+        //     address: Yup.string().required(),
+        //     city: Yup.string().required(),
+        //     locationLat: Yup.number().required(),
+        //     locationLon: Yup.number().required(),
+        //     name: Yup.string().nullable()
+        // }).required(),
+        placeId: Yup.string().required(),
         name: Yup.string().nullable(),
         sallaryAmount: Yup.number().required().min(0),
         sallaryProductName: Yup.string().nullable(),
@@ -103,13 +106,29 @@ export const createEvent = async (req: Request, res: Response) => {
     }
 
     try {
+        const client = new Client();
+        const placeDetails = await client.placeDetails({
+            params: {
+                key: process.env.GOOGLE_MAPS_API_KEY as string,
+                language: Language.sk,
+                place_id: "ChIJTbRH9gZta0cRsYcEjXmjkNo",
+                fields: ["address_components", "geometry", "name"]
+            }
+        });
+
+        const result = (await getLocationDetail(data.placeId)).data.result;
+
+        if (!result.address_components) return ThrowBadRequest(res);
+
+        const address = parseAddressComponents(result.address_components);
+
         const location = await prisma.location.create({
             data: {
-                address: data.location.address,
-                city: data.location.city,
-                locationLat: data.location.locationLat,
-                locationLon: data.location.locationLon,
-                name: data.location.name
+                address: address.streetAddress,
+                city: address.city,
+                locationLat: result.geometry?.location.lat as number,
+                locationLon: result.geometry?.location.lng as number,
+                name: result.name
             }
         });
 

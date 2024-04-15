@@ -7,7 +7,7 @@ export type CreateEventData = {
     capacity: number;
     description?: string;
     happeningAt: Date;
-    location: LocationData;
+    placeId: string;
     name: string;
     sallaryAmount: number;
     sallaryProductName?: string;
@@ -25,7 +25,7 @@ export type UpdateEventData = {
     capacity: number;
     description?: string;
     happeningAt: Date;
-    location: LocationData;
+    placeId?: string;
     name: string;
     sallaryAmount: number;
     sallaryProductName?: string;

@@ -1,4 +1,4 @@
-import { PrismaClient, SallaryType } from "@prisma/client";
+import { EventStatus, PrismaClient, SallaryType } from "@prisma/client";
 import { Request, Response } from "express";
 import * as Yup from "yup";
 import { UpdateEventData } from "../../../../@types/event";
@@ -7,6 +7,8 @@ import { ThrowForbidden } from "../../../errorResponses/forbidden403";
 import { ThrowBadRequest } from "../../../errorResponses/badRequest400";
 import { ThrowInternalServerError } from "../../../errorResponses/internalServer500";
 import { ThrowNotFound } from "../../../errorResponses/notFound404";
+import { getLocationDetail } from "../../../../helpers/getLoactionDetail";
+import { parseAddressComponents } from "../../../../helpers/parsePlaces";
 
 const prisma = new PrismaClient();
 
@@ -28,13 +30,7 @@ export const updateEvent = async (req: Request, res: Response) => {
         capacity: Yup.number().required().min(0),
         description: Yup.string().nullable(),
         happeningAt: Yup.date().required().min(new Date()),
-        location: Yup.object({
-            address: Yup.string().required(),
-            city: Yup.string().required(),
-            locationLat: Yup.number().required(),
-            locationLon: Yup.number().required(),
-            name: Yup.string().nullable()
-        }).required(),
+        placeId: Yup.string().nullable(),
         name: Yup.string().nullable(),
         sallaryAmount: Yup.number().required().min(0),
         sallaryProductName: Yup.string().nullable(),
@@ -53,7 +49,7 @@ export const updateEvent = async (req: Request, res: Response) => {
                 from: Yup.string().required(),
                 to: Yup.string().required()
             }).required()
-        ).required()
+        ).nullable()
     });
 
     try {
@@ -83,7 +79,8 @@ export const updateEvent = async (req: Request, res: Response) => {
     const oldEventObject = await prisma.event.findFirst({
         where: {
             userId: userData.id,
-            id: eventId
+            id: eventId,
+            status: EventStatus.CREATED
         },
         include: {
             EventCategoryRelation: {
@@ -110,6 +107,7 @@ export const updateEvent = async (req: Request, res: Response) => {
     });
 
     if (oldEventObject === null) {
+        console.log("Event not found ");
         return ThrowNotFound(res);
     }
 
@@ -145,18 +143,26 @@ export const updateEvent = async (req: Request, res: Response) => {
     }
 
     try {
-        const location = await prisma.location.update({
-            where: {
-                id: oldEventObject.locationId
-            },
-            data: {
-                address: data.location.address,
-                city: data.location.city,
-                locationLat: data.location.locationLat,
-                locationLon: data.location.locationLon,
-                name: data.location.name
-            }
-        });
+        if ("placeId" in data && data.placeId != "" && data.placeId != null) {
+            const result = (await getLocationDetail(data.placeId)).data.result;
+
+            if (!result.address_components) return ThrowBadRequest(res);
+
+            const address = parseAddressComponents(result.address_components);
+
+            await prisma.location.update({
+                where: {
+                    id: oldEventObject.locationId
+                },
+                data: {
+                    address: address.streetAddress,
+                    city: address.city,
+                    locationLat: result.geometry?.location.lat,
+                    locationLon: result.geometry?.location.lng,
+                    name: result.name
+                }
+            });
+        }
 
         await prisma.event.update({
             where: {
@@ -172,8 +178,7 @@ export const updateEvent = async (req: Request, res: Response) => {
                 toolingRequired: data.toolingRequired,
                 description: data.description,
                 thumbnailURL: data.thumbnailURL,
-                userId: userData.id,
-                locationId: location.id
+                userId: userData.id
             },
             select: {
                 id: true
@@ -192,20 +197,24 @@ export const updateEvent = async (req: Request, res: Response) => {
             }
         });
 
-        await prisma.eventCategoryRelation.createMany({
-            data: data.categories.map((categoryId) => ({
-                eventCategoryId: categoryId,
-                eventId: eventId
-            }))
-        });
+        if (data.categories) {
+            await prisma.eventCategoryRelation.createMany({
+                data: data.categories.map((categoryId) => ({
+                    eventCategoryId: categoryId,
+                    eventId: eventId
+                }))
+            });
+        }
 
-        await prisma.harmonogramItem.createMany({
-            data: data.harmonogramItems.map((harmoogramItem) => ({
-                ...harmoogramItem,
-                eventId: eventId,
-                id: undefined
-            }))
-        });
+        if (data.harmonogramItems) {
+            await prisma.harmonogramItem.createMany({
+                data: data.harmonogramItems.map((harmoogramItem) => ({
+                    ...harmoogramItem,
+                    eventId: eventId,
+                    id: undefined
+                }))
+            });
+        }
 
         return res.status(200).send();
     } catch (error) {

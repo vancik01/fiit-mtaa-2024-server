@@ -14,6 +14,7 @@ import {
     PlaceInputType,
     StructuredFormatting
 } from "@googlemaps/google-maps-services-js";
+import { parseAddressComponents } from "../../helpers/parsePlaces";
 
 const prisma = new PrismaClient();
 
