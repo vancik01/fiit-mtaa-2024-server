@@ -36,6 +36,7 @@ import { ThrowNotFound } from "./errorResponses/notFound404";
 import { getLiveEventData } from "./endpoints/events/[eventId]/live";
 import { getEventReporting } from "./endpoints/events/[eventId]/reporting";
 import { deleteAccount } from "./endpoints/user/deleteAccount";
+import { searchPlaces } from "./endpoints/searchplaces";
 
 const prisma = new PrismaClient();
 
@@ -103,6 +104,8 @@ const runServer = () => {
 
     app.post("/login", login);
     app.post("/createAccount", createAccount);
+
+    app.get("/searchPlaces", searchPlaces);
 
     app.get("/user/", getUser);
     app.put("/user/editAccount", editAccount);
