@@ -340,9 +340,9 @@ async function main() {
     await Promise.all(
         assignments.map((assignment) => {
             const statusChangeTo = faker.helpers.arrayElement([
-                EventPresenceStatus.PRESENT,
-                EventPresenceStatus.LEFT,
-                EventPresenceStatus.DID_NOT_ARRIVE
+                //EventPresenceStatus.PRESENT,
+                //EventPresenceStatus.LEFT,
+                EventPresenceStatus.NOT_PRESENT
             ]);
 
             const arrivedAt = [

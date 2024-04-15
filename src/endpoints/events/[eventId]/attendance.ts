@@ -40,11 +40,22 @@ export const eventWorkersAttendance = async (req: Request, res: Response) => {
             }
         });
 
-        if (workers.length == 0) {
-            return ThrowNotFound(res);
-        }
+        const lastUpdated = await prisma.eventAssignment.aggregate({
+            _max: {
+                updatedAt: true
+            },
+            where: {
+                eventId: eventId,
+                event: {
+                    status: EventStatus.PROGRESS
+                }
+            }
+        });
 
-        return res.status(200).json({ workers: workers });
+        return res.status(200).json({
+            workers: workers,
+            lastUpdated: lastUpdated._max.updatedAt
+        });
     } catch (error) {
         return ThrowInternalServerError(res);
     }

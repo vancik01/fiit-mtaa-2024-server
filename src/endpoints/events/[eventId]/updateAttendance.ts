@@ -110,6 +110,7 @@ export const eventUpdateAttendance = async (req: Request, res: Response) => {
                         }
                     },
                     data: {
+                        updatedAt: new Date(),
                         arrivedAt: worker.arrivedAt,
                         leftAt: worker.leftAt,
                         presenceStatus: worker.presenceStatus

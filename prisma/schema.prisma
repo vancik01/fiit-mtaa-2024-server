@@ -112,6 +112,7 @@ model Event {
 model EventAssignment {
   id               String                @id @default(cuid())
   createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @default(now())
   signedOffAt      DateTime?
   user             User                  @relation(fields: [userId], references: [id])
   userId           String
