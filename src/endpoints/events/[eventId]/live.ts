@@ -63,7 +63,8 @@ export const getLiveEventData = async (req: Request, res: Response) => {
 
         return res.status(200).send({
             announcementItems,
-            harmonogramItems
+            harmonogramItems,
+            name: event.name
         });
     } catch (error) {
         return ThrowInternalServerError(res);
