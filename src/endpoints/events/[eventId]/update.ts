@@ -107,7 +107,6 @@ export const updateEvent = async (req: Request, res: Response) => {
     });
 
     if (oldEventObject === null) {
-        console.log("Event not found ");
         return ThrowNotFound(res);
     }
 

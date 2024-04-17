@@ -36,7 +36,6 @@ export const uploadEventImage = async (req: Request, res: Response) => {
                 await file.makePublic();
                 const publicUrl = `https://storage.googleapis.com/${bucket.name}/${file.name}`;
                 res.status(200).send({ imageURL: publicUrl });
-                return;
             });
     } catch (error) {
         console.log(error);
