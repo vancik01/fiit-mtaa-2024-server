@@ -188,8 +188,8 @@ async function main() {
             .fill("")
             .map((_, i) => {
                 const { latitude, longitude } = generateNearbyCoordinate(
-                    48.934328,
-                    18.160032
+                    48.155018,
+                    17.103271
                 );
                 return {
                     name: faker.company.name(),
