@@ -65,12 +65,23 @@ export const getEventReporting = async (req: Request, res: Response) => {
                         id: true,
                         name: true
                     }
+                },
+                event: {
+                    select: {
+                        sallaryAmount: true,
+                        sallaryProductName: true,
+                        sallaryType: true,
+                        sallaryUnit: true
+                    }
                 }
             }
         });
 
+        const sallary = reporting[0].event;
+
         return res.status(200).send({
-            reportingItems: reporting
+            reportingItems: reporting.map((r) => ({ ...r, event: undefined })),
+            sallary
         });
     } catch (error) {
         return ThrowInternalServerError(res);
