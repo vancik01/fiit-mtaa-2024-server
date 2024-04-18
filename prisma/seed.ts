@@ -234,19 +234,17 @@ async function main() {
 
         //Assign categories to events
         await Promise.all(
-            Array(faker.number.int({ min: 1, max: 3 }))
-                .fill("")
-                .map((_) =>
+            // Shuffle categories and take a slice based on a random number
+            categories
+                .map((value) => ({ value, sort: Math.random() }))
+                .sort((a, b) => a.sort - b.sort)
+                .map((a) => a.value)
+                .slice(0, faker.number.int({ min: 1, max: 3 }))
+                .map((category) =>
                     prisma.eventCategoryRelation.create({
                         data: {
                             eventId: event.id,
-                            eventCategoryId:
-                                categories[
-                                    faker.number.int({
-                                        min: 0,
-                                        max: categories.length - 1
-                                    })
-                                ].id
+                            eventCategoryId: category.id
                         }
                     })
                 )
