@@ -66,15 +66,17 @@ export const updateEvent = async (req: Request, res: Response) => {
         (data.sallaryProductName === undefined ||
             data.sallaryUnit === undefined)
     ) {
+        console.log("sallary 1");
         return ThrowBadRequest(res);
     }
 
-    if (
-        data.sallaryType === SallaryType.MONEY &&
-        (data.sallaryProductName || data.sallaryUnit)
-    ) {
-        return ThrowBadRequest(res);
-    }
+    // if (
+    //     data.sallaryType === SallaryType.MONEY &&
+    //     (data.sallaryProductName || data.sallaryUnit)
+    // ) {
+    //     console.log("sallary 2");
+    //     return ThrowBadRequest(res);
+    // }
 
     const oldEventObject = await prisma.event.findFirst({
         where: {
