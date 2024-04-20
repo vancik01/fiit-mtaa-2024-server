@@ -35,6 +35,7 @@ jobs:
                     echo "DATABASE_PORT=5432" >> .env
                     echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
                     echo "DATABASE_URL=postgresql://postgres:${DB_PASSWORD}@localhost:${DATABASE_PORT}/postgres?connect_timeout=300" >> .env
+                    echo "GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}" >> .env
                     echo "BUCKET_NAME=${{ secrets.BUCKET_NAME }}" >> .env
                     
                   EOF

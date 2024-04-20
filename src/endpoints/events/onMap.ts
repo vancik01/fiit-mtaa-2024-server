@@ -19,9 +19,9 @@ export const getOnMap = async (req: Request, res: Response) => {
             }
         });
 
-        if (eventsLocations.length == 0) {
-            return ThrowNotFound(res);
-        }
+        // if (eventsLocations.length == 0) {
+        //     return ThrowNotFound(res);
+        // }
 
         return res.status(200).send({ events: eventsLocations });
     } catch (error) {
