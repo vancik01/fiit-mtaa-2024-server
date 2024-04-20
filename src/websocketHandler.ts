@@ -20,6 +20,7 @@ export const websocketHandler = async (
     const userData = req.user as UserDecodedData;
 
     if (!eventId || eventId === "") {
+        console.log("Event id not provided found");
         return ws.disconnect();
     }
 
@@ -45,6 +46,7 @@ export const websocketHandler = async (
     });
 
     if (event === null) {
+        console.log("Event not found");
         return ws.disconnect();
     }
 
