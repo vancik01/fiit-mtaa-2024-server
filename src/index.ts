@@ -145,9 +145,10 @@ const runServer = () => {
     app.post("/events/:eventId/signOff", signOffEvent);
     app.get("/events/:eventId/live", getLiveEventData);
     app.get("/events/:eventId/reporting", getEventReporting);
-    app.post("/events/:eventId/publishAnnouncement", (req, res) =>
-        publishAnnouncement(req, res, eventConnections)
-    );
+    app.post("/events/:eventId/publishAnnouncement", (req, res) => {
+        console.log("WebSocket connection attempted.");
+        publishAnnouncement(req, res, eventConnections);
+    });
 
     app.ws("/events/:eventId/announcements/subscribe", (ws, req) => {
         websocketHandler(ws, req, eventConnections);
