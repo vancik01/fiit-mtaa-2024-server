@@ -77,6 +77,10 @@ export const getEventReporting = async (req: Request, res: Response) => {
             }
         });
 
+        if (reporting.length === 0) {
+            return ThrowNotFound(res);
+        }
+
         const sallary = reporting[0].event;
 
         return res.status(200).send({
@@ -84,6 +88,7 @@ export const getEventReporting = async (req: Request, res: Response) => {
             sallary
         });
     } catch (error) {
+        console.log(error);
         return ThrowInternalServerError(res);
     }
 };

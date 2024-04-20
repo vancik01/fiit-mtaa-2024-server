@@ -11,7 +11,13 @@ export const getAssignedCategories = async (req: Request, res: Response) => {
             include: {
                 _count: {
                     select: {
-                        EventCategoryRelation: true
+                        EventCategoryRelation: {
+                            where: {
+                                Event: {
+                                    status: EventStatus.CREATED
+                                }
+                            }
+                        }
                     }
                 }
             }

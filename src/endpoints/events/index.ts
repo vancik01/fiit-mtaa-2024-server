@@ -14,24 +14,28 @@ export const getEvents = async (req: Request, res: Response) => {
     var eventIds: Array<DistanceResponse> = [];
 
     if (distance && lat && lon) {
-        eventIds = await prisma.$queryRaw`
-        SELECT *
-        FROM (SELECT e.id,
-                    6371 * acos(
-                            cos(radians(${parseFloat(lat.toString())}))
-                                * cos(radians("locationLat"))
-                                * cos(radians("locationLon") - radians(${parseFloat(
-                                    lon.toString()
-                                )}))
-                                + sin(radians(${parseFloat(
-                                    lat.toString()
-                                )})) * sin(radians("locationLat"))
-                            ) AS distance
-            FROM "Event" e
-                    JOIN "Location" l ON l.id = e."locationId"
-            WHERE status = 'CREATED') AS events
-        WHERE events.distance <= ${parseFloat(distance.toString())}
-        ORDER BY events.distance;`;
+        try {
+            eventIds = await prisma.$queryRaw`
+            SELECT *
+            FROM (SELECT e.id,
+                        6371 * acos(
+                                cos(radians(${parseFloat(lat.toString())}))
+                                    * cos(radians("locationLat"))
+                                    * cos(radians("locationLon") - radians(${parseFloat(
+                                        lon.toString()
+                                    )}))
+                                    + sin(radians(${parseFloat(
+                                        lat.toString()
+                                    )})) * sin(radians("locationLat"))
+                                ) AS distance
+                FROM "Event" e
+                        JOIN "Location" l ON l.id = e."locationId"
+                WHERE status = 'CREATED') AS events
+            WHERE events.distance <= ${parseFloat(distance.toString())}
+            ORDER BY events.distance;`;
+        } catch (error) {
+            return ThrowInternalServerError(res);
+        }
     }
 
     try {
@@ -88,7 +92,7 @@ export const getEvents = async (req: Request, res: Response) => {
                           }
                       }
                     : undefined),
-                ...(eventIds.length != 0
+                ...(distance != null
                     ? {
                           id: {
                               in: eventIds.map((e) => e.id)
