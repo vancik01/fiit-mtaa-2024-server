@@ -70,7 +70,6 @@ export const endEvent = async (req: Request, res: Response) => {
                         moment(assignment.arrivedAt),
                         "hours"
                     ) + 1;
-                console.log(assignment, hours_worked);
                 await prisma.eventAssignment.update({
                     where: {
                         id: assignment.id

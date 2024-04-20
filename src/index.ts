@@ -37,6 +37,11 @@ import { getLiveEventData } from "./endpoints/events/[eventId]/live";
 import { getEventReporting } from "./endpoints/events/[eventId]/reporting";
 import { deleteAccount } from "./endpoints/user/deleteAccount";
 import { searchPlaces } from "./endpoints/searchplaces";
+import expressWs from "express-ws";
+import { EventConnections } from "../@types/websockets";
+import { sendMessageToEventWithId } from "../helpers/sendMessageToEventRoom";
+import { publishAnnouncement } from "./endpoints/events/[eventId]/publishAnnouncement";
+import { websocketHandler } from "./websocketHandler";
 
 const prisma = new PrismaClient();
 
@@ -85,8 +90,12 @@ const verifyTokenMiddleware = async (
 
 const runServer = () => {
     const PORT = process.env.PORT as string | 3000;
-    const app = express();
     const swaggerDocument = require("./swagger.json");
+
+    const expressServer = express();
+    const wsServer = expressWs(expressServer);
+    const app = wsServer.app;
+    const eventConnections: EventConnections = {};
 
     app.use(json());
     app.use(cors());
@@ -136,6 +145,13 @@ const runServer = () => {
     app.post("/events/:eventId/signOff", signOffEvent);
     app.get("/events/:eventId/live", getLiveEventData);
     app.get("/events/:eventId/reporting", getEventReporting);
+    app.post("/events/:eventId/publishAnnouncement", (req, res) =>
+        publishAnnouncement(req, res, eventConnections)
+    );
+
+    app.ws("/events/:eventId/announcements/subscribe", (ws, req) => {
+        websocketHandler(ws, req, eventConnections);
+    });
 
     app.use((req, res, next) => {
         return ThrowNotFound(res);
@@ -145,9 +161,5 @@ const runServer = () => {
         console.log(`App listening on  http://localhost:${PORT}`);
     });
 };
-
-// const pointA: Coordinates = { lat: 49.0022976, lon: 18.1394956 };
-// const results = await distanceQuery(pointA, 2000);
-// console.log(results);
 
 runServer();
