@@ -10,20 +10,33 @@ type DistanceResponse = {
 };
 
 export const getNearbyEvents = async (req: Request, res: Response) => {
-    const { lat, lon } = req.body;
+    const { lat, lon } = req.query;
 
-    const eventIds: Array<DistanceResponse> = await prisma.$queryRaw`
-        SELECT e.id, 6371 * acos(
-                    cos(radians(${lat}))
-                        * cos(radians("locationLat"))
-                        * cos(radians("locationLon") - radians(${lon}))
-                        + sin(radians(${lat})) * sin(radians("locationLat"))
-                    ) as "distance"
-        FROM "Event" e
-                JOIN "Location" l on l.id = e."locationId"
-        WHERE e."happeningAt" > now() AND status = 'CREATED'
-        ORDER BY "distance"
+    var eventIds: Array<DistanceResponse> = [];
+
+    const distance = 15.0;
+
+    if (lat && lon) {
+        eventIds = await prisma.$queryRaw`
+        SELECT *
+        FROM (SELECT e.id,
+                    6371 * acos(
+                            cos(radians(${parseFloat(lat.toString())}))
+                                * cos(radians("locationLat"))
+                                * cos(radians("locationLon") - radians(${parseFloat(
+                                    lon.toString()
+                                )}))
+                                + sin(radians(${parseFloat(
+                                    lat.toString()
+                                )})) * sin(radians("locationLat"))
+                            ) AS distance
+            FROM "Event" e
+                    JOIN "Location" l ON l.id = e."locationId"
+            WHERE status = 'CREATED') AS events
+        WHERE events.distance <= ${parseFloat(distance.toString())}
+        ORDER BY events.distance
         LIMIT 5;`;
+    }
 
     try {
         const events = await prisma.event.findMany({
