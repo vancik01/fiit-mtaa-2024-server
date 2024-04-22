@@ -15,7 +15,6 @@ import { getLatestEvents } from "./endpoints/events/latest";
 import { getEvents } from "./endpoints/events";
 import { getActiveEvent } from "./endpoints/events/active";
 import { uploadEventImage } from "./endpoints/events/[eventId]/uploadImage";
-const multer = require("multer");
 const cors = require("cors");
 import { createEvent } from "./endpoints/events/create";
 import { updateEvent } from "./endpoints/events/[eventId]/update";
@@ -39,9 +38,10 @@ import { deleteAccount } from "./endpoints/user/deleteAccount";
 import { searchPlaces } from "./endpoints/searchplaces";
 import expressWs from "express-ws";
 import { EventConnections } from "../@types/websockets";
-import { sendMessageToEventWithId } from "../helpers/sendMessageToEventRoom";
 import { publishAnnouncement } from "./endpoints/events/[eventId]/publishAnnouncement";
 import { websocketHandler } from "./websocketHandler";
+import multer from "multer";
+import { ThrowBadRequest } from "./errorResponses/badRequest400";
 
 const prisma = new PrismaClient();
 
@@ -128,7 +128,30 @@ const runServer = () => {
     app.get("/events/my", getMyEvents);
     app.get("/events/categories", getAssignedCategories);
     app.get("/events/onMap", getOnMap);
-    app.post("/events/uploadImage", multer().single("image"), uploadEventImage);
+    const upload = multer({
+        limits: { fileSize: 2 * 1024 * 1024 } // Limit set to 2MB
+    }).single("image");
+
+    // Route to handle file upload
+    app.post(
+        "/events/uploadImage",
+        (req, res, next) => {
+            upload(req, res, function (err) {
+                if (err instanceof multer.MulterError) {
+                    if (err.code === "LIMIT_FILE_SIZE") {
+                        return res.status(413).json({
+                            error: "File too large"
+                        });
+                    }
+                } else if (err) {
+                    return ThrowBadRequest(res);
+                }
+                next();
+            });
+        },
+        uploadEventImage
+    );
+
     app.post("/events/create", createEvent);
 
     app.get("/events/:eventId", getEventDetail);
