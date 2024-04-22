@@ -129,7 +129,7 @@ const runServer = () => {
     app.get("/events/categories", getAssignedCategories);
     app.get("/events/onMap", getOnMap);
     const upload = multer({
-        limits: { fileSize: 2 * 1024 * 1024 } // Limit set to 2MB
+        limits: { fileSize: 5 * 1024 * 1024 } // Limit set to 2MB
     }).single("image");
 
     // Route to handle file upload
